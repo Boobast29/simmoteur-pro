@@ -2,10 +2,13 @@
 
 Simulateur pédagogique de gestion moteur essence, 100 % hors ligne : ouvrir `SimMoteur-Pro.html` dans un navigateur.
 
-Moteur 1.6 16V à injection multipoint séquentielle, calculateur moteur, boîte automatique ou manuelle, réseau CAN. Public : CAP / Bac Pro Maintenance des véhicules.
+Cinq moteurs essence et diesel (atmosphériques, turbo wastegate, turbo à géométrie variable) plus un générateur de moteurs, calculateur moteur, boîte automatique ou manuelle, réseau CAN. Public : CAP / Bac Pro Maintenance des véhicules, BTS.
 
 ## Ce que fait le simulateur
 
+- **Moteurs** : essence 1.6 atmosphérique, 1.4 turbo, 2.0 sport, diesel 1.6 et 2.0 common rail turbo. Générateur de moteur (cylindrée, alésage/course, taux de compression, suralimentation, régimes) avec fiche technique calculée (couple, puissance, PME, vitesse de piston, consommation spécifique) et alertes de conception.
+- **Modèle physique** : le couple vient de la masse d'air, du carburant brûlé et du rendement indiqué lié au taux de compression, moins les frottements et le pompage. Turbo avec inertie, remplissage variable selon le régime.
+- **Diesel common rail** : préchauffage et post-chauffage, pression de rampe (doseur + régulateur), injection pilote / principale / post-injection, limiteur de fumées, régulateur de régime, turbo à géométrie variable, EGR régulée sur le débitmètre, filtre à particules et régénération, opacité.
 - **Un vrai calculateur.** Chaque capteur produit une tension à partir de la grandeur physique (CTN, piézorésistif, inductif 60-2, Hall, sonde lambda à saut de tension, potentiomètres doubles). Le calculateur décode ces tensions, contrôle leur plausibilité, enregistre les codes défaut et bascule sur des valeurs de substitution, comme un calculateur réel.
 - **Stratégies réelles** : synchronisation dent manquante + AAC, régulation de ralenti (papillon + réserve d'avance), boucle fermée lambda avec corrections court et long terme, enrichissements (démarrage, froid, accélération, pleine charge), coupure en décélération, limiteur, anti-cliquetis, protection catalyseur, modes dégradés.
 - **Conduite** : pédales qu'on enfonce à la souris ou au doigt (retour ressort), cale-pied, clavier. Boîte automatique P / R / N / D avec convertisseur, lock-up et kick-down, ou boîte manuelle 5 vitesses + marche arrière à embrayage piloté (grille en H, aide au passage des rapports).
@@ -17,8 +20,10 @@ Moteur 1.6 16V à injection multipoint séquentielle, calculateur moteur, boîte
 - **Enregistreur** : 4 courbes au choix parmi 20 paramètres sur 3 min, lecture au survol, export CSV.
 - **Analyse des gaz** : CO, CO₂, HC, O₂, NOx et λ calculé (Brettschneider), catalyseur qui chauffe et fenêtre catalytique, test pollution du contrôle technique guidé avec verdict.
 - **Valise de diagnostic** : calculateurs présents, codes défaut avec contexte d'apparition, paramètres en direct, tests actionneurs.
+- **Banc de puissance** : frein asservi en régime, mesure pleine charge palier par palier (couple, puissance, consommation spécifique, λ, suralimentation, T° échappement) comparée à la courbe théorique. Une panne se voit sur la courbe.
+- **Combustion** : pression cylindre calculée (modèle une zone, loi de Wiebe, prémélange + diffusion en diesel), diagramme p-V, PMI, CA50, gradient de pression, rendement indiqué, cylindre par cylindre.
 - **Cartographies** : temps d'injection, avance, calcul du temps d'injection pas à pas, courbes couple / puissance.
-- **29 missions atelier** : panne cachée, parole du client, indices, score.
+- **40 missions atelier** (essence, diesel, turbo) : panne cachée, parole du client, indices, score.
 - **Cours, glossaire, abréviations, contrôle technique** (repris de la version 7).
 - **Son moteur** optionnel.
 
