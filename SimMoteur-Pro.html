@@ -2809,11 +2809,20 @@ $('#recCopy').onclick = () => {
   const done = ok => { $('#recNote').textContent = ok ? `CSV copié (${csv.split('\n').length - 1} lignes). Collez-le dans un tableur.` : 'Copie refusée par le navigateur : utilisez « Télécharger CSV ».'; };
   try { navigator.clipboard.writeText(csv).then(() => done(true), () => done(false)); } catch (e) { done(false); }
 };
-$('#recDl').onclick = () => {
-  const blob = new Blob(['﻿' + recCsv()], { type:'text/csv;charset=utf-8' });
-  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'simmoteur-enregistrement.csv';
+// Téléchargement : capacité « downloads » dans la page en ligne, lien classique en local
+let DLNS = null;
+if (window.claude && typeof window.claude.use === 'function') window.claude.use('downloads').then(ns => { DLNS = ns; }).catch(() => {});
+$('#recDl').onclick = async () => {
+  const csv = '\ufeff' + recCsv(), filename = 'simmoteur-enregistrement.csv';
+  if (DLNS){
+    try { await DLNS.save({ filename, data:csv }); $('#recNote').textContent = 'Fichier CSV enregistré.'; }
+    catch (e) { $('#recNote').textContent = e && e.code === 'declined' ? 'Téléchargement annulé.' : 'Téléchargement indisponible ici : utilisez « Copier en CSV ».'; }
+    return;
+  }
+  if (window.claude){ $('#recNote').textContent = 'Téléchargement indisponible ici : utilisez « Copier en CSV ».'; return; }
+  const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv], { type:'text/csv;charset=utf-8' })); a.download = filename;
   document.body.appendChild(a); a.click(); a.remove();
-  $('#recNote').textContent = 'Téléchargement lancé. S’il ne se passe rien (page en ligne), utilisez « Copier en CSV » ou ouvrez le fichier SimMoteur-Pro.html en local.';
+  $('#recNote').textContent = 'Téléchargement lancé.';
 };
 
 /* =====================================================================
