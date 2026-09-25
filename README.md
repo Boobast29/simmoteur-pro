@@ -6,6 +6,12 @@ Cinq moteurs essence et diesel (atmosphériques, turbo wastegate, turbo à géom
 
 ## Ce que fait le simulateur
 
+- **Scène de conduite** : la voiture roule sur une route animée (pente, feux stop et de recul, phares). La fumée d'échappement suit les gaz calculés : suies, vapeur à froid. Ordinateur de bord : consommation instantanée et moyenne, trajet, réservoir, autonomie, panne sèche.
+- **Route réaliste** : pente de −12 à +15 %, chargement jusqu'à 1 200 kg, carburant consommé en litres.
+- **Côté jeu** : chronomètre 0-100 km/h et 400 m départ arrêté avec records par moteur, 20 badges, niveaux (d'Apprenti à Ingénieur motoriste), notifications, bandeau « Premiers pas ».
+- **Côté pro** : fiche de diagnostic à remplir pendant chaque mission (défauts lus insérés automatiquement, copie en texte, bonus de points). Cas à plusieurs pannes. Espace professeur : composer un cas (moteur, pannes, parole du client, froid ou chaud) et générer un code à donner aux élèves.
+- **Navigation** en 5 espaces : Conduire, Mesurer, Réseau & diag, Ingénierie, Former.
+
 - **Moteurs** : essence 1.6 atmosphérique, 1.4 turbo, 2.0 sport, diesel 1.6 et 2.0 common rail turbo. Générateur de moteur (cylindrée, alésage/course, taux de compression, suralimentation, régimes) avec fiche technique calculée (couple, puissance, PME, vitesse de piston, consommation spécifique) et alertes de conception.
 - **Modèle physique** : le couple vient de la masse d'air, du carburant brûlé et du rendement indiqué lié au taux de compression, moins les frottements et le pompage. Turbo avec inertie, remplissage variable selon le régime.
 - **Diesel common rail** : préchauffage et post-chauffage, pression de rampe (doseur + régulateur), injection pilote / principale / post-injection, limiteur de fumées, régulateur de régime, turbo à géométrie variable, EGR régulée sur le débitmètre, filtre à particules et régénération, opacité.

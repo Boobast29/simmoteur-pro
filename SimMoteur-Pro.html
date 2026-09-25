@@ -43,11 +43,12 @@ h1,h2,h3{text-wrap:balance}
 .seg button:hover{color:var(--text)}
 .seg button.on{background:var(--accent);color:var(--accent-ink)}
 .seg button.start.on{background:var(--crit);color:#fff}
-.pills{display:flex;flex-wrap:wrap;gap:6px;margin-left:auto}
+.pills{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-left:auto}
 .pill{font:600 12px/1 var(--f-disp);letter-spacing:.08em;text-transform:uppercase;padding:5px 9px;border-radius:99px;border:1px solid var(--line2);color:var(--dim);white-space:nowrap}
 .pill.ok{color:var(--ok);border-color:color-mix(in srgb,var(--ok) 55%,transparent)}
 .pill.warn{color:var(--warn);border-color:color-mix(in srgb,var(--warn) 55%,transparent)}
 .pill.crit{color:#fff;background:var(--crit);border-color:var(--crit)}
+.pill.lvl{color:var(--accent);border-color:color-mix(in srgb,var(--accent) 55%,transparent)}
 
 /* ---------- Mise en page */
 .app{display:grid;grid-template-columns:300px minmax(0,1fr);gap:16px;padding-block:16px;padding-inline:16px;max-width:1560px;margin:0 auto}
@@ -142,6 +143,34 @@ input[type=range]{width:100%;accent-color:var(--accent);height:22px;margin:0}
 .steps li.cur{border-color:var(--accent)}
 .steps li.done{opacity:.75}
 .steps li i{font-style:normal;font:600 13px var(--f-mono);color:var(--dim)}
+/* ---------- Premiers pas */
+.onboard{margin-bottom:14px}
+.obsteps{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:6px}
+.obstep{display:grid;grid-template-columns:22px 1fr;gap:6px;align-items:start;font-size:12.5px;padding:7px 9px;border-radius:7px;background:var(--panel2);border:1px solid var(--line);color:var(--muted)}
+.obstep i{font:600 13px var(--f-mono);font-style:normal;color:var(--dim)}
+.obstep.ok{border-color:var(--ok);color:var(--text)}
+.obstep.ok i{color:var(--ok)}
+/* ---------- Scène de route */
+.roadbox{border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-bottom:14px;background:#0b141b}
+#road{display:block;width:100%;height:230px}
+@media (max-width:600px){#road{height:180px}}
+/* ---------- Groupes de navigation */
+.groups{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
+.groups button{display:flex;flex-direction:column;align-items:flex-start;gap:1px;border:1px solid var(--line);background:var(--panel);border-radius:10px;padding:8px 14px 7px;color:var(--muted);min-width:130px;text-align:left}
+.groups button b{font:700 16px/1.1 var(--f-disp);letter-spacing:.06em;text-transform:uppercase;color:var(--text)}
+.groups button small{font-size:11.5px}
+.groups button:hover{border-color:var(--line2)}
+.groups button[aria-selected=true]{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 10%,var(--panel));}
+.groups button[aria-selected=true] b{color:var(--accent)}
+@media (max-width:700px){.groups button{min-width:0;flex:1 1 40%;padding:6px 10px}.groups button small{display:none}.toast{padding:7px 10px}.toast b{font-size:13px}}
+/* ---------- Notifications */
+.toasts{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:50;display:flex;flex-direction:column;gap:8px;max-width:min(360px,calc(100vw - 32px))}
+.toast{background:var(--panel2);border:1px solid var(--accent);border-radius:10px;padding:10px 14px;box-shadow:0 8px 30px rgba(0,0,0,.45);display:flex;gap:10px;align-items:center;animation:tin .35s ease-out}
+.toast .ic{font:700 22px/1 var(--f-disp);color:var(--accent);min-width:28px;text-align:center}
+.toast b{display:block;font:700 15px/1.2 var(--f-disp);letter-spacing:.04em;text-transform:uppercase}
+.toast .tx span{display:block;font-size:12.5px;color:var(--muted)}
+@keyframes tin{from{transform:translateY(12px);opacity:0}to{transform:none;opacity:1}}
+@media (prefers-reduced-motion:reduce){.toast{animation:none}}
 /* ---------- Onglets */
 .tabs{display:flex;gap:2px;border-bottom:1px solid var(--line);overflow-x:auto;margin-bottom:14px;scrollbar-width:thin}
 .tabs button{background:none;border:0;border-bottom:2px solid transparent;padding:10px 14px 9px;font:600 15px var(--f-disp);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);white-space:nowrap}
@@ -280,6 +309,14 @@ select{background:var(--panel2);border:1px solid var(--line2);border-radius:6px;
 .verdict.ok{background:color-mix(in srgb,var(--ok) 16%,var(--panel2));border:1px solid var(--ok)}
 .verdict.no{background:color-mix(in srgb,var(--crit) 16%,var(--panel2));border:1px solid var(--crit)}
 .score{font:700 44px/1 var(--f-disp);color:var(--accent)}
+/* ---------- Progression */
+.lvl{background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:10px 12px;margin-bottom:10px}
+.badges{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:6px}
+.badge{border:1px dashed var(--line2);border-radius:8px;padding:7px 9px;opacity:.55}
+.badge b{display:block;font:700 13.5px/1.2 var(--f-disp);letter-spacing:.03em}
+.badge span{font-size:11px;color:var(--dim)}
+.badge.got{opacity:1;border-style:solid;border-color:var(--accent);background:color-mix(in srgb,var(--accent) 10%,var(--panel2))}
+.badge.got b{color:var(--accent)}
 /* ---------- Cours */
 .fiches{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:10px}
 .fiche{background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:12px 14px}
@@ -312,6 +349,7 @@ mark{background:color-mix(in srgb,var(--accent) 40%,transparent);color:inherit;b
   <div class="pills" id="pills"></div>
 </header>
 
+<div class="toasts" id="toasts" aria-live="polite"></div>
 <div class="app">
   <aside class="side">
     <section class="box">
@@ -345,6 +383,19 @@ mark{background:color-mix(in srgb,var(--accent) 40%,transparent);color:inherit;b
         </div>
         <label class="toggle"><input type="checkbox" id="clim"> Climatisation demandée</label>
         <div class="row">
+          <div class="lab"><span>Pente de la route</span><b id="slopeV">0 %</b></div>
+          <input type="range" id="slope" min="-12" max="15" step="1" value="0">
+        </div>
+        <div class="row">
+          <div class="lab"><span>Chargement (passagers, bagages, remorque)</span><b id="cargoV">75 kg</b></div>
+          <input type="range" id="cargo" min="75" max="1200" step="25" value="75">
+        </div>
+        <div class="row">
+          <div class="lab"><span>Réservoir</span><b id="fuelV">45 L</b></div>
+          <div class="tbar" style="width:100%;height:8px"><i id="fuelBar" style="width:90%;background:var(--ok)"></i></div>
+          <div class="quick"><button class="btn" type="button" id="refuel">Faire le plein</button><button class="btn" type="button" id="tripReset">Remise à zéro du trajet</button></div>
+        </div>
+        <div class="row">
           <div class="lab"><span>Température extérieure</span><b id="ambV">15 °C</b></div>
           <input type="range" id="amb" min="-15" max="40" step="1" value="15">
         </div>
@@ -371,6 +422,7 @@ mark{background:color-mix(in srgb,var(--accent) 40%,transparent);color:inherit;b
   </aside>
 
   <main>
+    <div class="groups" id="groups" role="tablist" aria-label="Espaces"></div>
     <nav class="tabs" role="tablist" id="tabs">
       <button role="tab" data-t="dash" aria-selected="true">Tableau de bord</button>
       <button role="tab" data-t="eng" aria-selected="false">Moteurs</button>
@@ -391,6 +443,8 @@ mark{background:color-mix(in srgb,var(--accent) 40%,transparent);color:inherit;b
 
     <!-- ===== Tableau de bord -->
     <section class="tab on" id="tab-dash">
+      <div class="box onboard" id="onboard" hidden><div class="hd"><h3>Premiers pas</h3><button class="btn" type="button" id="obHide">Masquer</button></div><div class="obsteps" id="obSteps"></div></div>
+      <div class="roadbox"><canvas id="road" aria-label="Scène de conduite"></canvas></div>
       <div class="grid dash">
         <div class="grid">
           <div class="box cluster">
@@ -710,6 +764,7 @@ const PEDA = {"COURS":[{"cat":"Moteur","titre":"Le cycle 4 temps","pts":["Admiss
    OUTILS
    ===================================================================== */
 const $ = s => document.querySelector(s);
+function esc(s){ return String(s).replace(/[&<>"]/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[c])); }
 const clamp = (x, a, b) => x < a ? a : x > b ? b : x;
 const fmt = (x, d = 0) => Number.isFinite(x) ? x.toFixed(d).replace('.', ',').replace('-0,0', '0,0') : '—';
 const hex = (n, w = 2) => n.toString(16).toUpperCase().padStart(w, '0');
@@ -913,7 +968,7 @@ function initState(){
     v:0, gear:1, lock:false, shiftT:0, lastShift:-9,
     lamEx:5, lamBuf:[], lamM:5, o2v:0.45, o2Temp:15, lamSlow:1.05, o2dn:0.45, o2dnDelay:0.45,
     cylFire:[false,false,false,false], knockLevel:0, tind:0, tc:0, fuelGs:0,
-    odo:48213.4, histAcc:0, altOk:true, crankT:0, catT:15, lamB:1, unb:0, burnN:0,
+    odo:48213.4, slope:0, cargo:75, fuel:45, trip:0, tripL:0, histAcc:0, altOk:true, crankT:0, catT:15, lamB:1, unb:0, burnN:0,
     gas:{ co:0, hc:0, nox:0, co2:0.04, o2:20.9, k:0 }, raw:{ co:0, hc:0, nox:0, co2:0.04, o2:20.9, k:0 }, eff:{ co:0, hc:0, nox:0 },
     p2:BARO, tc:0, vgtPos:60, exhPow:0, rail:0, glow:0, egr:0, egrPos:0, airTot:0, maf:0, egt:20, smoke:0, soot:ENG.sootMax * 0.35, dpfDp:0, pex:BARO, tf:0, tdyno:0, qCyl:[0,0,0,0]
   });
@@ -1025,7 +1080,7 @@ function encode(){
   CAN.data[0x220] = [u8(S.pClim * 10), S.clim ? 1 : 0, S.clim ? 40 : 0];
   CAN.data[0x2A0] = [S.key, u8(S.amb + 40), u8(S.vbat * 10), S.clim ? 1 : 0];
   const km = Math.round(S.odo * 10);
-  CAN.data[0x3E0] = [(km >> 16) & 255, (km >> 8) & 255, km & 255, 62];
+  CAN.data[0x3E0] = [(km >> 16) & 255, (km >> 8) & 255, km & 255, clamp(Math.round(S.fuel / 50 * 100), 0, 100)];
   if (diag.connected){
     const pids = [[0x0C, u16(E.rpm * 4)], [0x05, [u8(E.tCool + 40)]], [0x0B, [u8(E.map)]], [0x0D, [u8(E.speed)]], [0x0E, [u8((E.adv + 64) * 2)]], [0x06, [u8(E.stft * 100 * 1.28 + 128)]]];
     const pp = pids[diag.pidIdx % pids.length];
@@ -1480,7 +1535,7 @@ function physics(dt){
   let burn = 0, fuelBurnt = 0, fuelTot = 0, airTot = 0, work = 0;
   if (!d){
     // Circuit essence basse pression
-    const pumpRun = E.pump && !F.pumpRelay;
+    const pumpRun = E.pump && !F.pumpRelay && S.fuel > 0;
     const pT = pumpRun ? (F.pumpWeak ? 2.55 - 0.25 * S.fuelGs : 3.5) : Math.min(S.pFuel, 2.2);
     S.pFuel += (pT - S.pFuel) * Math.min(1, dt / (pumpRun ? 0.25 : 40));
     if (!pumpRun && S.pFuel > 0) S.pFuel = Math.max(0, S.pFuel - dt * 0.001);
@@ -1511,7 +1566,7 @@ function physics(dt){
     S.egt = S.running ? 350 + 450 * clamp(S.p, 0, 1.6) + n / 20 - (E.adv - advBase(n, S.p)) * 12 : S.amb;
   } else {
     // Rampe commune : la pompe haute pression est entraînée par le moteur
-    const lift = E.pump && !F.pumpRelay;
+    const lift = E.pump && !F.pumpRelay && S.fuel > 0;
     const cap = !lift ? 0 : ENG.rail * 1.15 * clamp(n / 450, 0, 1) * (F.railLow ? 0.5 : 1);
     let Pt = E.on ? Math.min(E.railCmd || 0, cap) : 0;
     if (F.injLeak) Pt *= 0.78;
@@ -1618,13 +1673,16 @@ function physics(dt){
   S.nt = inGear ? (S.lock ? n : wr) : (manu ? 0 : n * 0.98);
   const slipPow = !S.lock && inGear && !manu ? Math.abs(Tc * (n - wr)) * TAU / 60 : 0;
   S.atf += (slipPow * 0.00012 - (S.atf - Math.max(S.amb, S.tCool * 0.85)) * 0.01) * dt;
-  const Fdrag = 0.5 * 1.2 * 0.65 * S.v * Math.abs(S.v) + (Math.abs(S.v) > 0.05 ? MASS * 9.81 * 0.012 * Math.sign(S.v) : 0);
+  const M = MASS + S.cargo, ang = Math.atan(S.slope / 100);
+  const Fgrade = M * 9.81 * Math.sin(ang);                                  // pente : force qui retient (ou pousse) le véhicule
+  const Fdrag = 0.5 * 1.2 * 0.65 * S.v * Math.abs(S.v) + (Math.abs(S.v) > 0.05 ? M * 9.81 * 0.012 * Math.cos(ang) * Math.sign(S.v) : 0) + Fgrade;
   const brakeTo0 = (v, dd) => v > 0 ? Math.max(0, v - dd) : Math.min(0, v + dd);
-  const Fbrake = (S.brake / 100) * MASS * 8 + (!manu && S.lever === 'P' ? 20000 : 0);
+  const Fbrake = (S.brake / 100) * M * 8 + (!manu && S.lever === 'P' ? 20000 : 0);
+  const holdStill = Fbrake >= Math.abs(Fgrade) + 1;
   if (S.lock){
     const rT = gearRatio(S.gear) * FINAL;
     const Fw = (S.tind - Tf - Tacc) * rT * 0.92 / RW;
-    const meq = MASS + ENG.J * Math.pow(rT / RW, 2);
+    const meq = M + ENG.J * Math.pow(rT / RW, 2);
     S.v += (Fw - Fdrag) / meq * dt;
     if (Fbrake > 0) S.v = brakeTo0(S.v, Fbrake / meq * dt);
     S.rpm = Math.max(0, S.v / RW * 60 / TAU * rT);
@@ -1633,11 +1691,15 @@ function physics(dt){
     S.rpm = Math.max(0, S.rpm);
     const srW = S.rpm > 50 ? wr / S.rpm : 0;
     const Fw = Tc * (manu ? 1 : bvaTR(srW)) * ratio * 0.9 / RW;
-    S.v += (Fw - Fdrag) / MASS * dt;
-    if (Fbrake > 0) S.v = brakeTo0(S.v, Fbrake / MASS * dt);
-    if (Math.abs(S.v) < 0.02 && Math.abs(Fw) < MASS * 9.81 * 0.012) S.v = 0;
+    S.v += (Fw - Fdrag) / M * dt;
+    if (Fbrake > 0) S.v = brakeTo0(S.v, Fbrake / M * dt);
+    if (Math.abs(S.v) < 0.02 && Math.abs(Fw - Fgrade) < M * 9.81 * 0.012 && (holdStill || Math.abs(Fgrade) < M * 9.81 * 0.012)) S.v = 0;
   }
   S.odo += Math.abs(S.v) * dt / 1000;
+  S.trip += Math.abs(S.v) * dt / 1000;
+  const dL = S.fuelGs / (isD() ? 835 : 745) * dt;                            // litres consommés
+  S.fuel = Math.max(0, S.fuel - dL); S.tripL += dL;
+  if (S.fuel <= 0 && S.running && !S.dryLogged){ S.dryLogged = true; log('Panne sèche : réservoir vide, la pompe aspire de l’air', 'c'); }
 
   // Moteur tournant / calé
   if (burn && S.rpm > 60) S.burnT += dt; else S.burnT = Math.max(0, S.burnT - dt * 2);
@@ -1650,7 +1712,7 @@ function physics(dt){
   S.pClim += (pcT - S.pClim) * Math.min(1, dt / 4);
 
   // Thermique : la chaleur au liquide suit la puissance carburant
-  const Q = S.running ? 1.9 * Math.pow(Math.max(S.fuelGs, 0), 0.75) * (d ? 0.8 : 1) * 1.6 / Math.max(ENG.disp, 0.8) : 0;
+  const Q = S.running ? 1.0 * Math.pow(Math.max(S.fuelGs, 0), 0.55) * (d ? 0.8 : 1) * Math.sqrt(1.6 / Math.max(ENG.disp, 0.8)) : 0;   // °C/s : grande inertie du circuit de refroidissement
   const open = F.thermo ? 1 : clamp((S.tCool - 84) / 10, 0, 1);
   const fanLvl = E.fan === 2 ? 2.2 : E.fan === 1 ? 1.2 : 0;
   const rad = 0.011 * open * (1 + 0.08 * Math.abs(S.v) + fanLvl);
@@ -1746,7 +1808,7 @@ function tick(now){
     if (S.recAcc >= 0.1){ S.recAcc = 0; recRecord(); }
   }
   encode();
-  dynoTick();
+  dynoTick(); perfTick();
   driveTick(real); updateReadout();
   uiAcc += real; slowAcc += real;
   updateFast();
@@ -1883,7 +1945,7 @@ $('#preReset').onclick = () => {
   const keepSim = S.simSpeed; initState(); initEcu(); S.simSpeed = keepSim;
   Object.keys(DTC).forEach(k => delete DTC[k]); Object.keys(dtcTimer).forEach(k => delete dtcTimer[k]);
   LOG.length = 0; diag.connected = false; setKey(0); setHold(0); setPedal(0); setBrake(0); driveUI();
-  { const el = $('#amb'); el.value = 15; el.dispatchEvent(new Event('input')); }
+  [['amb', 15], ['slope', 0], ['cargo', 75]].forEach(([id, v]) => { const el = $('#' + id); if (el){ el.value = v; el.dispatchEvent(new Event('input')); } });
   $('#clim').checked = false; S.clim = false; updateFaultCount(); log('Simulation réinitialisée');
 };
 $('#logClear').onclick = () => { LOG.length = 0; logDirty = true; };
@@ -1901,8 +1963,20 @@ updateFaultCount();
 
 // Onglets
 let TAB = 'dash';
+const GROUPS = [
+  { id:'drive', t:'Conduire', s:'Tableau de bord, moteurs', tabs:['dash', 'eng'] },
+  { id:'meas', t:'Mesurer', s:'Capteurs, oscillo, multimètre, gaz', tabs:['io', 'scope', 'dmm', 'rec', 'gas'] },
+  { id:'net', t:'Réseau & diag', s:'Multiplexage, valise', tabs:['can', 'diag'] },
+  { id:'eng2', t:'Ingénierie', s:'Cartos, boîte, banc, combustion', tabs:['maps', 'bva', 'dyno', 'comb'] },
+  { id:'learn', t:'Former', s:'Missions, cours, progression', tabs:['mis', 'cours'] },
+];
+$('#groups').innerHTML = GROUPS.map(g => `<button type="button" role="tab" data-g="${g.id}" aria-selected="false"><b>${g.t}</b><small>${g.s}</small></button>`).join('');
+$('#groups').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; const g = GROUPS.find(x => x.id === b.dataset.g); showTab(g.last || g.tabs[0]); });
 function showTab(t){
   TAB = t;
+  const grp = GROUPS.find(g => g.tabs.includes(t)) || GROUPS[0]; grp.last = t;
+  document.querySelectorAll('#groups button').forEach(b => b.setAttribute('aria-selected', b.dataset.g === grp.id));
+  document.querySelectorAll('#tabs button').forEach(b => { b.hidden = !grp.tabs.includes(b.dataset.t); });
   document.querySelectorAll('#tabs button').forEach(b => b.setAttribute('aria-selected', b.dataset.t === t));
   document.querySelectorAll('.tab').forEach(s => s.classList.toggle('on', s.id === 'tab-' + t));
   try { localStorage.setItem('simmoteur-tab', t); } catch (e) {}
@@ -1948,7 +2022,7 @@ function gauge(cv, val, max, o){
 
 const LAMPS = [
   {id:'mil', t:'Moteur', c:'a'}, {id:'epc', t:'EPC', c:'a'}, {id:'bat', t:'Charge', c:'r'}, {id:'oil', t:'Huile', c:'r'},
-  {id:'tmp', t:'T° eau', c:'r'}, {id:'com', t:'Défaut réseau', c:'a'}, {id:'fan', t:'GMV', c:'b'}, {id:'ac', t:'A/C', c:'g'}, {id:'rev', t:'Recul', c:'b'}, {id:'glow', t:'Préchauffage', c:'a', d:1}, {id:'fap', t:'FAP', c:'a', d:1},
+  {id:'tmp', t:'T° eau', c:'r'}, {id:'com', t:'Défaut réseau', c:'a'}, {id:'fan', t:'GMV', c:'b'}, {id:'ac', t:'A/C', c:'g'}, {id:'rev', t:'Recul', c:'b'}, {id:'fuel', t:'Réserve', c:'a'}, {id:'glow', t:'Préchauffage', c:'a', d:1}, {id:'fap', t:'FAP', c:'a', d:1},
 ];
 function buildLamps(){ $('#lamps').innerHTML = LAMPS.filter(l => !l.d || isD()).map(l => `<span class="lamp ${l.c}" id="lp-${l.id}">${l.t}</span>`).join(''); }
 buildLamps();
@@ -2069,6 +2143,7 @@ function setPills(){
   if (E.limp) P.push(['Mode dégradé', 'crit']);
   if (milOn() && E.on) P.push(['Voyant moteur', 'crit']);
   if (S.simSpeed > 1) P.push(['Temps ×' + S.simSpeed, 'warn']);
+  { const l = level(); P.push([`Niv. ${l.n} · ${l.t} · ${PROG.xp} XP`, 'lvl']); }
   $('#pills').innerHTML = P.map(p => `<span class="pill ${p[1]}">${p[0]}</span>`).join('');
 }
 
@@ -2095,6 +2170,7 @@ function updateDash(){
     ac: powered && E.comp,
     rev: powered && inGearNow() && S.gear === -1,
     glow: powered && c.glow,
+    fuel: powered && S.fuel < 6,
     fap: powered && c.fap,
   };
   // Test des voyants à la mise du contact (3 s) puis extinction si tout va bien
@@ -2689,7 +2765,7 @@ function updateCAN(){
   $('#frDecode').innerHTML = `<div class="bytes">${d.map((b, i) => `<span title="octet ${i}">${hex(b)}</span>`).join('')}</div><div class="calc">${decodeMsg(m.id).map(t => `<div class="ln"><span>${t}</span></div>`).join('')}</div>`;
   drawFrame();
 }
-$('#tCan').addEventListener('click', e => { const tr = e.target.closest('tr[data-id]'); if (!tr) return; canSel = +tr.dataset.id; frameDirty = true; updateCAN(); });
+$('#tCan').addEventListener('click', e => { const tr = e.target.closest('tr[data-id]'); if (!tr) return; award('can'); canSel = +tr.dataset.id; frameDirty = true; updateCAN(); });
 const FIELD_COL = { sof:'#b98cf0', id:'#f0a23b', ctl:'#7fa6c2', dlc:'#5cb8e8', data:'#46c28a', crc:'#e070b0', del:'#5f7485', ack:'#f2c14e', eof:'#3b4c5a' };
 const FIELD_TXT = { sof:'SOF', id:'Identifiant 11 bits', ctl:'RTR · IDE · r0', dlc:'DLC (nb octets)', data:'Données', crc:'CRC 15 bits', ack:'ACK', eof:'Fin de trame' };
 $('#frLegend').innerHTML = Object.entries(FIELD_TXT).map(([k, t]) => `<span><i style="background:${FIELD_COL[k]}"></i>${t}</span>`).join('') + `<span><i style="background:${'#ec5b50'}"></i>Bit de stuffing</span>`;
@@ -3323,7 +3399,7 @@ function updateDmm(){
   if (d[0] === 'R' && S.key >= 1){ txt = '----'; warn = 'Coupez le contact : une mesure de résistance sous tension est fausse et peut abîmer l’appareil.'; }
   else {
     const v = d[3]();
-    if (v === INF) txt = 'O.L';
+    if (v === INF){ txt = 'O.L'; if (d[0] === 'R'){ const sv = Object.assign({}, F); Object.keys(F).forEach(k => F[k] = false); const v0 = d[3](); Object.assign(F, sv); if (v0 !== INF) award('ohm'); } }
     else if (d[0] === 'R'){ if (v >= 1000){ txt = fmt(v / 1000, 2); unit = 'kΩ'; } else txt = fmt(v, v < 10 ? 2 : 1); }
     else txt = fmt(v, v < 1 ? 3 : 2);
   }
@@ -3448,7 +3524,7 @@ function ctTick(){
         const avg = {}; for (const k in CT.sum) avg[k] = CT.sum[k] / CT.n;
         CT.res[CT.step === 2 ? 'idle' : 'fast'] = avg;
         if (CT.step === 2){ CT.step = 3; CT.acc = 0; CT.sum = {}; CT.n = 0; }
-        else { if (CT.auto){ CT.auto = false; setHold(0); } CT.step = 4; const r = ctVerdict(); log(`Test pollution terminé : ${r.ok ? 'favorable' : 'défavorable (contre-visite)'}`, r.ok ? 'i' : 'c'); }
+        else { if (CT.auto){ CT.auto = false; setHold(0); } CT.step = 4; const r = ctVerdict(); if (r.ok) award('ct'); log(`Test pollution terminé : ${r.ok ? 'favorable' : 'défavorable (contre-visite)'}`, r.ok ? 'i' : 'c'); }
       }
     }
   }
@@ -3483,7 +3559,7 @@ function ctTickD(){
     CT.pk = Math.max(CT.pk, S.gas.k); CT.pkRaw = Math.max(CT.pkRaw, S.raw.k || 0);
     if (S.rpm > ENG.red - 150){ CT.top += dt; if (CT.auto && CT.top > 0.6) setHold(0); }
     if (S.pedal < 5){ if (CT.top > 0.2){ CT.res.peaks.push(CT.pk); CT.res.raw.push(CT.pkRaw); CT.step++; } CT.phase = 'wait'; CT.acc = 0;
-      if (CT.step === 5){ if (CT.auto){ CT.auto = false; setHold(0); } const r = ctVerdict(); log(`Test d’opacité terminé : ${r.ok ? 'favorable' : 'défavorable'}`, r.ok ? 'i' : 'c'); } }
+      if (CT.step === 5){ if (CT.auto){ CT.auto = false; setHold(0); } const r = ctVerdict(); if (r.ok) award('ct'); log(`Test d’opacité terminé : ${r.ok ? 'favorable' : 'défavorable'}`, r.ok ? 'i' : 'c'); } }
   }
 }
 function renderCT(){
@@ -3663,7 +3739,7 @@ $('#genRnd').onclick = () => {
   GEN.red = d ? r(4200, 5000, 50) : r(5800, 8000, 50); GEN.vePeak = d ? r(1800, 2800, 50) : r(2500, Math.min(6800, GEN.red), 50);
   renderGenForm(); genPreview();
 };
-$('#genApply').onclick = () => { CUSTOM = genSpec(); applyEngine('custom', CUSTOM); };
+$('#genApply').onclick = () => { CUSTOM = genSpec(); applyEngine('custom', CUSTOM); award('gen'); };
 function renderEngTab(){
   const list = Object.entries(ENGINES).map(([k, v]) => [k, deriveEngine(v, k)]);
   if (CUSTOM) list.push(['custom', deriveEngine(CUSTOM, 'custom')]);
@@ -3722,7 +3798,7 @@ function dynoTick(){
     DYNO.step++; DYNO.t0 = S.t; DYNO.acc = { n:0, t:0, f:0, l:0, m:0, g:0 }; DYNO.cnt = 0;
     if (DYNO.step >= DYNO.list.length){
       const best = DYNO.pts.reduce((b, q) => q.p > b.p ? q : b, DYNO.pts[0]), bt = DYNO.pts.reduce((b, q) => q.t > b.t ? q : b, DYNO.pts[0]);
-      dynoStop(`mesure terminée : ${fmt(bt.t)} Nm à ${fmt(bt.n)} tr/min, ${fmt(best.p, 1)} kW (${fmt(best.p * 1.36)} ch) à ${fmt(best.n)} tr/min.`);
+      award('dyno'); dynoStop(`mesure terminée : ${fmt(bt.t)} Nm à ${fmt(bt.n)} tr/min, ${fmt(best.p, 1)} kW (${fmt(best.p * 1.36)} ch) à ${fmt(best.n)} tr/min.`);
     }
   }
 }
@@ -3825,12 +3901,225 @@ PEDA.COURS.push(...DIESEL_COURS, ...COMB_COURS);
 renderGenForm();
 
 /* =====================================================================
+   PROGRESSION : notifications, badges, niveaux
+   ===================================================================== */
+function toast(title, sub, ic = '★'){
+  const el = document.createElement('div'); el.className = 'toast';
+  el.innerHTML = `<span class="ic">${ic}</span><div class="tx"><b></b><span></span></div>`;
+  el.querySelector('.tx b').textContent = title; el.querySelector('.tx span').textContent = sub || '';
+  const box = $('#toasts'); box.appendChild(el);
+  while (box.children.length > 3) box.firstChild.remove();
+  setTimeout(() => { el.style.transition = 'opacity .4s'; el.style.opacity = '0'; setTimeout(() => el.remove(), 450); }, 4200);
+}
+const BADGES = [
+  ['start', 'Premier démarrage', 'Démarrer le moteur'],
+  ['cold', 'Matin d’hiver', 'Démarrer un moteur sous 0 °C'],
+  ['sprint', 'Chronométreur', 'Réaliser un 0 à 100 km/h'],
+  ['q400', 'Départ arrêté', 'Parcourir 400 m départ arrêté'],
+  ['eco', 'Pied léger', 'Rouler 10 s entre 80 et 100 km/h sous 5,5 L/100 km'],
+  ['rev', 'Créneau', 'Reculer à plus de 3 km/h'],
+  ['manual', 'Boîte courte', 'Passer les 5 rapports en boîte manuelle'],
+  ['limiter', 'Au rupteur', 'Toucher le régime maxi'],
+  ['hill', 'Col de montagne', 'Monter une pente de 10 % à plus de 50 km/h'],
+  ['can', 'Décodeur CAN', 'Ouvrir le détail d’une trame CAN'],
+  ['ohm', 'Circuit ouvert', 'Trouver un circuit coupé à l’ohmmètre'],
+  ['ct', 'Contrôle technique', 'Réussir un test pollution'],
+  ['dyno', 'Banc de puissance', 'Mesurer une courbe complète'],
+  ['regen', 'FAP propre', 'Terminer une régénération du filtre à particules'],
+  ['gen', 'Motoriste', 'Concevoir et monter son propre moteur'],
+  ['diesel', 'Diéséliste', 'Réussir une mission sur un diesel'],
+  ['clean', 'Sans filet', 'Réussir une mission sans indice'],
+  ['five', 'Habitué de l’atelier', 'Réussir 5 missions'],
+  ['multi', 'Double panne', 'Résoudre un cas à plusieurs pannes'],
+  ['dry', 'Panne sèche', 'Vider le réservoir… et refaire le plein'],
+];
+const LEVELS = [[0, 'Apprenti'], [300, 'Mécanicien'], [800, 'Technicien'], [1600, 'Technicien expert'], [2800, 'Diagnosticien'], [4500, 'Ingénieur motoriste']];
+let PROG = { badges:{}, xp:0, wins:0 };
+try { PROG = Object.assign(PROG, JSON.parse(localStorage.getItem('simmoteur-prog') || '{}')); } catch (e) {}
+const saveProg = () => { try { localStorage.setItem('simmoteur-prog', JSON.stringify(PROG)); } catch (e) {} };
+function level(){ let i = 0; LEVELS.forEach((l, k) => { if (PROG.xp >= l[0]) i = k; }); return { n:i + 1, t:LEVELS[i][1], next:LEVELS[i + 1] ? LEVELS[i + 1][0] : null, from:LEVELS[i][0] }; }
+function addXp(x){ const before = level().n; PROG.xp += x; saveProg(); const l = level(); if (l.n > before) toast(`Niveau ${l.n} : ${l.t}`, 'Nouveau grade atteint', '▲'); }
+function award(id){
+  if (PROG.badges[id]) return;
+  const b = BADGES.find(x => x[0] === id); if (!b) return;
+  PROG.badges[id] = new Date().toLocaleDateString('fr-FR'); saveProg();
+  toast(b[1], b[2] + ' · +50 XP'); addXp(50); log(`Badge obtenu : ${b[1]}`, 'i');
+}
+// Chronomètre 0-100 km/h et 400 m départ arrêté
+const PERF = { st:'idle', t0:0, d0:0, t100:null, t400:null, v400:null, best:{} };
+try { PERF.best = JSON.parse(localStorage.getItem('simmoteur-perf') || '{}'); } catch (e) {}
+function perfTick(){
+  const fwd = inGearNow() && S.gear > 0;
+  if (PERF.st === 'idle' || PERF.st === 'done'){ if (S.running && fwd && Math.abs(S.v) < 0.2 && S.brake < 50 && S.pedal < 5) PERF.st = 'armed'; }
+  if (PERF.st === 'armed'){ if (!fwd || !S.running){ PERF.st = 'idle'; } else if (S.v > 0.2 && S.pedal > 40){ Object.assign(PERF, { st:'run', t0:S.t, d0:S.odo, t100:null, t400:null, v400:null }); } }
+  if (PERF.st === 'run'){
+    if (S.brake > 10 || S.pedal < 20 || !S.running){ PERF.st = 'idle'; return; }
+    const el = S.t - PERF.t0, d = (S.odo - PERF.d0) * 1000;
+    if (PERF.t100 == null && S.v * 3.6 >= 100){ PERF.t100 = el; const k = ENG.id + ':100'; const nb = !PERF.best[k] || el < PERF.best[k]; if (nb) PERF.best[k] = el; toast(`0 à 100 km/h : ${fmt(el, 2)} s`, nb ? 'Nouveau record pour ce moteur' : `Record : ${fmt(PERF.best[k], 2)} s`, '⏱'); award('sprint'); }
+    if (PERF.t400 == null && d >= 402){ PERF.t400 = el; PERF.v400 = S.v * 3.6; const k = ENG.id + ':400'; const nb = !PERF.best[k] || el < PERF.best[k]; if (nb) PERF.best[k] = el; toast(`400 m départ arrêté : ${fmt(el, 2)} s`, `Vitesse de sortie ${fmt(PERF.v400)} km/h${nb ? ' · record' : ''}`, '⏱'); award('q400'); PERF.st = 'done'; }
+    try { localStorage.setItem('simmoteur-perf', JSON.stringify(PERF.best)); } catch (e) {}
+  }
+}
+// Surveillance des exploits (appelée à 8 Hz)
+let ecoT = 0, manualSeen = new Set(), wasRun = false;
+function badgeTick(dt){
+  if (S.running && !wasRun){ award('start'); if (S.tCool < 0) award('cold'); }
+  wasRun = S.running;
+  const kmh = Math.abs(S.v) * 3.6, l100 = kmh > 5 ? S.fuelGs / (isD() ? 835 : 745) * 3600 / kmh * 100 : 99;
+  ecoT = kmh > 80 && kmh < 100 && l100 < 5.5 ? ecoT + dt * S.simSpeed : 0; if (ecoT > 10) award('eco');
+  if (S.v < -0.84) award('rev');
+  if (S.box === 'manu' && S.gear > 0 && S.lock) manualSeen.add(S.gear); if (manualSeen.size >= 5) award('manual');
+  if (S.rpm > ENG.red - 30 && S.running) award('limiter');
+  if (S.slope >= 10 && kmh > 50) award('hill');
+  if (E.regen && E.dpfLoad < 12) award('regen');
+  if (S.fuel <= 0) PROG.dryPending = true;
+}
+
+/* =====================================================================
+   SCÈNE DE ROUTE (vue latérale animée)
+   ===================================================================== */
+let roadX = 0, roadLast = performance.now();
+const PARTS = [];
+function hillY(x, seed, amp, per){ return Math.sin(x / per + seed) * amp + Math.sin(x / (per * 0.37) + seed * 2.1) * amp * 0.35; }
+function drawRoad(now){
+  const dtR = Math.min(0.05, (now - roadLast) / 1000); roadLast = now;
+  const cv = $('#road'); const { ctx, w, h } = fitCanvas(cv);
+  const pxm = 16, k = Math.min(1.25, Math.max(0.7, w / 900));
+  roadX += S.v * dtR * S.simSpeed * pxm;
+  const ang = Math.atan(S.slope / 100);
+  const warm = S.amb > 20, cold = S.amb < 3;
+  // ciel
+  const g = ctx.createLinearGradient(0, 0, 0, h);
+  g.addColorStop(0, cold ? '#16222e' : '#101b26'); g.addColorStop(0.7, cold ? '#2a3a48' : warm ? '#3a2c2a' : '#223242'); g.addColorStop(1, '#0b141b');
+  ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
+  ctx.fillStyle = warm ? 'rgba(240,162,59,.18)' : 'rgba(92,184,232,.10)'; ctx.beginPath(); ctx.arc(w * 0.82, h * 0.28, 60 * k, 0, TAU); ctx.fill();
+  // collines lointaines (parallaxe)
+  [[0.04, '#1a2833', 34, 260, 0.52], [0.12, '#15212a', 26, 170, 0.62]].forEach(([par, col, amp, per, base], li) => {
+    ctx.fillStyle = col; ctx.beginPath(); ctx.moveTo(0, h);
+    for (let x = 0; x <= w; x += 8) ctx.lineTo(x, h * base - hillY(x + roadX * par, li * 3, amp * k, per * k));
+    ctx.lineTo(w, h); ctx.fill();
+  });
+  // route inclinée autour de la voiture
+  const cx = w * 0.36, cy = h * 0.74;
+  ctx.save(); ctx.translate(cx, cy); ctx.rotate(-ang);
+  // poteaux et arbres
+  const sp = 150 * k;
+  for (let i = -4; i < w / sp + 6; i++){
+    const x = i * sp - mod(roadX * 0.8, sp) - cx;
+    ctx.fillStyle = '#20303c'; ctx.fillRect(x, -70 * k, 3, 70 * k);
+    if (i % 3 === 0){ ctx.fillStyle = '#18302a'; ctx.beginPath(); ctx.arc(x + 40 * k, -60 * k, 22 * k, 0, TAU); ctx.fill(); ctx.fillStyle = '#2a2016'; ctx.fillRect(x + 38 * k, -42 * k, 4 * k, 42 * k); }
+  }
+  ctx.fillStyle = '#1e262d'; ctx.fillRect(-w * 2, 0, w * 4, h);
+  ctx.fillStyle = '#2b353e'; ctx.fillRect(-w * 2, 0, w * 4, 4);
+  ctx.fillStyle = '#c9b76a'; const dash = 60 * k;
+  for (let x = -w * 2 - mod(roadX, dash * 2); x < w * 2; x += dash * 2) ctx.fillRect(x, 14 * k, dash, 3);
+  // voiture
+  const L = 190 * k, H = 40 * k, r = 21 * k, wy = -r - 2;
+  const wheel = (x) => {
+    ctx.fillStyle = '#0b0f12'; ctx.beginPath(); ctx.arc(x, wy, r, 0, TAU); ctx.fill();
+    ctx.fillStyle = '#6f7d89'; ctx.beginPath(); ctx.arc(x, wy, r * 0.58, 0, TAU); ctx.fill();
+    ctx.strokeStyle = '#2b353e'; ctx.lineWidth = 3; const a0 = roadX / r;
+    for (let s = 0; s < 5; s++){ const a = a0 + s * TAU / 5; ctx.beginPath(); ctx.moveTo(x, wy); ctx.lineTo(x + Math.cos(a) * r * 0.55, wy + Math.sin(a) * r * 0.55); ctx.stroke(); }
+  };
+  const bx = -L / 2, by = wy - H * 0.35;
+  // caisse
+  ctx.fillStyle = '#b6c0c8';
+  ctx.beginPath();
+  ctx.moveTo(bx + 6, by + H * 0.9); ctx.lineTo(bx + 2, by + H * 0.25); ctx.quadraticCurveTo(bx + 4, by, bx + L * 0.16, by - H * 0.05);
+  ctx.lineTo(bx + L * 0.3, by - H * 0.1); ctx.lineTo(bx + L * 0.42, by - H * 0.78); ctx.quadraticCurveTo(bx + L * 0.5, by - H * 0.9, bx + L * 0.66, by - H * 0.82);
+  ctx.lineTo(bx + L * 0.8, by - H * 0.18); ctx.quadraticCurveTo(bx + L * 0.96, by - H * 0.1, bx + L, by + H * 0.2); ctx.lineTo(bx + L - 2, by + H * 0.9); ctx.closePath(); ctx.fill();
+  ctx.fillStyle = '#8f9ba5'; ctx.fillRect(bx + 8, by + H * 0.55, L - 16, 3);
+  // vitres
+  ctx.fillStyle = '#243847';
+  ctx.beginPath(); ctx.moveTo(bx + L * 0.33, by - H * 0.14); ctx.lineTo(bx + L * 0.44, by - H * 0.7); ctx.lineTo(bx + L * 0.55, by - H * 0.74); ctx.lineTo(bx + L * 0.55, by - H * 0.14); ctx.fill();
+  ctx.beginPath(); ctx.moveTo(bx + L * 0.58, by - H * 0.14); ctx.lineTo(bx + L * 0.58, by - H * 0.74); ctx.lineTo(bx + L * 0.65, by - H * 0.72); ctx.lineTo(bx + L * 0.76, by - H * 0.18); ctx.fill();
+  // feux
+  const braking = S.brake > 5 && S.key >= 1, rev = inGearNow() && S.gear === -1 && S.key >= 1;
+  ctx.fillStyle = braking ? '#ff3b30' : '#6b1e1b'; if (braking){ ctx.shadowColor = '#ff3b30'; ctx.shadowBlur = 18; }
+  ctx.fillRect(bx + 1, by + H * 0.1, 7, 10); ctx.shadowBlur = 0;
+  if (rev){ ctx.fillStyle = '#fff'; ctx.shadowColor = '#fff'; ctx.shadowBlur = 14; ctx.fillRect(bx + 1, by + H * 0.4, 6, 6); ctx.shadowBlur = 0; }
+  if (S.key >= 1){ const hl = ctx.createLinearGradient(bx + L, 0, bx + L + 160 * k, 0); hl.addColorStop(0, 'rgba(255,236,170,.35)'); hl.addColorStop(1, 'rgba(255,236,170,0)'); ctx.fillStyle = hl; ctx.beginPath(); ctx.moveTo(bx + L - 2, by + H * 0.25); ctx.lineTo(bx + L + 170 * k, by + H * 0.9); ctx.lineTo(bx + L + 170 * k, by - H * 0.3); ctx.fill(); ctx.fillStyle = '#ffe9a8'; ctx.fillRect(bx + L - 6, by + H * 0.18, 5, 7); }
+  wheel(bx + L * 0.2); wheel(bx + L * 0.8);
+  // échappement : particules selon les gaz réels
+  const px = bx - 2, py = by + H * 0.85;
+  if (S.running){
+    const rate = 0.6 + S.fuelGs * 3;
+    const soot = isD() ? clamp(S.gas.k / 1.5, 0, 1) : clamp((0.85 - S.lamB) * 4, 0, 1);
+    const vapor = S.tCool < 45 || S.amb < 5 ? clamp((50 - S.tCool) / 50, 0.25, 0.9) : 0;
+    for (let n = 0; n < rate; n++) if (Math.random() < rate - n) PARTS.push({ x:px, y:py, vx:-S.v * pxm * 0.25 - 30 - Math.random() * 40 * (0.5 + S.fuelGs), vy:-8 - Math.random() * 12, life:1, sz:3 + Math.random() * 3, soot, vapor });
+  }
+  for (let i = PARTS.length - 1; i >= 0; i--){
+    const q = PARTS[i]; q.x += (q.vx - S.v * pxm * 0.75) * dtR; q.y += q.vy * dtR; q.vy -= 6 * dtR; q.sz += 14 * dtR; q.life -= dtR * (q.soot > 0.3 ? 0.45 : 0.9);
+    if (q.life <= 0 || q.x < -w){ PARTS.splice(i, 1); continue; }
+    const a = q.life * (0.05 + 0.5 * q.soot + 0.35 * q.vapor);
+    const c = q.soot > q.vapor ? `rgba(30,30,32,${a})` : `rgba(225,232,238,${a})`;
+    ctx.fillStyle = c; ctx.beginPath(); ctx.arc(q.x, q.y, q.sz, 0, TAU); ctx.fill();
+  }
+  if (PARTS.length > 400) PARTS.splice(0, PARTS.length - 400);
+  ctx.restore();
+  // Affichage tête haute
+  const kmh = Math.abs(S.v) * 3.6, fuelL = S.fuelGs / (isD() ? 835 : 745) * 3600;
+  const inst = kmh > 5 ? fuelL / kmh * 100 : null, avg = S.trip > 0.2 ? S.tripL / S.trip * 100 : null, range = avg ? S.fuel / avg * 100 : null;
+  const narrow = w < 640;
+  ctx.fillStyle = 'rgba(7,11,14,.55)'; ctx.fillRect(12, 12, 250, 62); if (!narrow) ctx.fillRect(w - 262, 12, 250, 62);
+  ctx.fillStyle = COL.text; ctx.textAlign = 'left'; ctx.font = '500 30px "IBM Plex Mono", monospace'; ctx.fillText(fmt(kmh), 22, 50);
+  ctx.font = '600 13px "Barlow Condensed", sans-serif'; ctx.fillStyle = COL.muted; ctx.fillText('KM/H', 22 + ctx.measureText(fmt(kmh)).width * 2.3 + 8, 50);
+  ctx.font = '700 26px "Barlow Condensed", sans-serif'; ctx.fillStyle = COL.accent; ctx.fillText(S.key < 1 ? '—' : gearLabel(), 150, 50);
+  ctx.font = '500 11px "IBM Plex Mono", monospace'; ctx.fillStyle = COL.muted;
+  ctx.fillText(`${fmt(S.rpm)} tr/min · pente ${S.slope > 0 ? '+' : ''}${S.slope} %`, 22, 66);
+  if (!narrow){ ctx.textAlign = 'right'; ctx.fillStyle = COL.text; ctx.font = '500 13px "IBM Plex Mono", monospace';
+  ctx.fillText(inst != null ? `${fmt(inst, 1)} L/100 km` : `${fmt(fuelL, 1)} L/h`, w - 22, 32);
+  ctx.fillStyle = COL.muted; ctx.font = '500 11px "IBM Plex Mono", monospace';
+  ctx.fillText(`moyenne ${avg != null ? fmt(avg, 1) : '—'} · trajet ${fmt(S.trip, 1)} km`, w - 22, 50);
+  ctx.fillText(`réservoir ${fmt(S.fuel, 1)} L · autonomie ${range != null ? fmt(range) + ' km' : '—'}`, w - 22, 66); }
+  // Chronomètre
+  if (PERF.st === 'run' || PERF.st === 'done' || PERF.st === 'armed'){
+    const el = PERF.st === 'run' ? S.t - PERF.t0 : null;
+    ctx.save(); if (narrow){ ctx.translate(0, h - 70); }
+    ctx.textAlign = 'center'; ctx.fillStyle = 'rgba(7,11,14,.55)'; ctx.fillRect(w / 2 - 120, 12, 240, 44);
+    ctx.fillStyle = PERF.st === 'armed' ? COL.muted : COL.ch1; ctx.font = '600 12px "Barlow Condensed", sans-serif';
+    ctx.fillText(PERF.st === 'armed' ? 'CHRONO PRÊT : ACCÉLÉREZ À FOND' : '0-100 KM/H · 400 M', w / 2, 28);
+    ctx.font = '500 15px "IBM Plex Mono", monospace'; ctx.fillStyle = COL.text;
+    ctx.fillText(PERF.st === 'armed' ? `record ${PERF.best[ENG.id + ':100'] ? fmt(PERF.best[ENG.id + ':100'], 2) + ' s' : '—'}` : `${el != null ? fmt(el, 1) + ' s' : ''}${PERF.t100 != null ? ` · 100 en ${fmt(PERF.t100, 2)} s` : ''}${PERF.t400 != null ? ` · 400 m ${fmt(PERF.t400, 2)} s` : ''}`, w / 2, 48);
+    ctx.restore();
+  }
+  if (S.fuel < 6 && S.key >= 1){ ctx.textAlign = 'center'; ctx.fillStyle = COL.warn; ctx.font = '600 13px "Barlow Condensed", sans-serif'; ctx.fillText(S.fuel <= 0 ? 'PANNE SÈCHE : FAITES LE PLEIN' : 'RÉSERVE CARBURANT', w / 2, h - 14); }
+}
+// Commandes de route
+bindRange('slope', v => { S.slope = v; $('#slopeV').textContent = (v > 0 ? '+' : '') + v + ' %'; });
+bindRange('cargo', v => { S.cargo = v; $('#cargoV').textContent = v + ' kg'; });
+$('#refuel').onclick = () => { if (S.running){ flashHint('Coupez le moteur pour faire le plein'); log('Plein refusé : coupez le moteur', 'w'); return; } S.fuel = 50; S.dryLogged = false; log('Plein fait : 50 L', 'i'); if (PROG.dryPending){ PROG.dryPending = false; award('dry'); } };
+$('#tripReset').onclick = () => { S.trip = 0; S.tripL = 0; log('Trajet remis à zéro'); };
+const OB = [
+  ['Mettre le contact', 'bouton Contact ou touche C', () => S.key >= 1],
+  ['Démarrer le moteur', 'maintenir Démarrer ou Espace', () => S.running],
+  ['Passer en D', 'levier de boîte automatique', () => S.lever === 'D' || (S.box === 'manu' && S.gear > 0)],
+  ['Rouler à 50 km/h', 'pédale Gaz ou flèche ↑', () => Math.abs(S.v) * 3.6 > 50],
+  ['Voir un signal à l’oscilloscope', 'groupe Mesurer', () => OBV.scope],
+  ['Lancer une mission atelier', 'groupe Former', () => !!MIS || (PROG.wins || 0) > 0],
+];
+const OBV = { scope:false, done:{} };
+let obOff = false; try { obOff = localStorage.getItem('simmoteur-ob') === 'off'; } catch (e) {}
+$('#obHide').onclick = () => { obOff = true; $('#onboard').hidden = true; try { localStorage.setItem('simmoteur-ob', 'off'); } catch (e) {} };
+function updateOnboard(){
+  if (TAB === 'scope') OBV.scope = true;
+  if (obOff){ $('#onboard').hidden = true; return; }
+  OB.forEach((o, i) => { if (o[2]()) OBV.done[i] = true; });
+  const n = Object.keys(OBV.done).length;
+  if (n >= OB.length){ if (!OBV.fin){ OBV.fin = true; toast('Premiers pas terminés', 'Vous savez piloter le simulateur · +100 XP', '✓'); addXp(100); } obOff = true; $('#onboard').hidden = true; try { localStorage.setItem('simmoteur-ob', 'off'); } catch (e) {} return; }
+  $('#onboard').hidden = false;
+  const h = OB.map((o, i) => `<div class="obstep ${OBV.done[i] ? 'ok' : ''}"><i>${OBV.done[i] ? '✓' : i + 1}</i><span><b>${o[0]}</b><br>${o[1]}</span></div>`).join('');
+  if ($('#obSteps').innerHTML !== h) $('#obSteps').innerHTML = h;
+}
+function updateFuelUI(){ $('#fuelV').textContent = fmt(S.fuel, 1) + ' L'; const b = $('#fuelBar'); b.style.width = clamp(S.fuel / 50 * 100, 0, 100) + '%'; b.style.background = S.fuel < 6 ? COL.crit : S.fuel < 12 ? COL.warn : COL.ok; }
+
+/* =====================================================================
    RAFRAÎCHISSEMENT
    ===================================================================== */
 function updateFast(){
   if (TAB === 'scope') drawScope();
   if (TAB === 'can') animNet(performance.now());
-  if (TAB === 'dash'){ updateDash(); drawEngine(performance.now()); }
+  if (TAB === 'dash'){ updateDash(); drawEngine(performance.now()); drawRoad(performance.now()); }
   if (TAB === 'bva') drawBva(performance.now());
   if (TAB === 'rec') drawRec();
   soundUpdate();
@@ -3838,7 +4127,7 @@ function updateFast(){
 let slowN = 0;
 function updateSlow(){
   slowN++;
-  setPills(); updateDtcBadge();
+  setPills(); updateDtcBadge(); badgeTick(0.12); updateFuelUI(); updateOnboard();
   if (E.on && E.rpm > 30 && slowN % 2 === 0){ trail.push([E.rpm, E.map, E.pedal]); if (trail.length > 60) trail.shift(); }
   if (TAB === 'dash') updateTiles();
   if (TAB === 'io') updateIO();
@@ -3898,73 +4187,144 @@ const MISSIONS = {
   boostLeak:{turbo:true, d:'moyen', client:'Ça siffle en accélération et ça manque de puissance.', h:['Pression de suralimentation obtenue par rapport à la consigne.','Contrôlez les durites entre turbo, échangeur et collecteur.'], cor:'Durite de suralimentation fendue : l’air comprimé s’échappe, la pression n’atteint pas la consigne malgré le turbo au maximum. Code P0299. Remplacer la durite, vérifier les colliers.'},
   absOff:{d:'facile', client:'Le compteur de vitesse reste à zéro et un voyant de réseau est allumé.', h:['Onglet CAN : quelle trame est absente ?','Valise : quel calculateur est muet ?'], cor:'Le calculateur ABS n’est plus alimenté : la trame de vitesse 0x1A0 disparaît. Tous les calculateurs qui l’utilisent enregistrent U0121. Contrôler le fusible et l’alimentation de l’ABS.'},
 };
-const DIFF = { facile:1, moyen:2, difficile:3 };
+const DIFF = { facile:1, moyen:2, difficile:3, prof:3 };
 function misHistory(){ try { return JSON.parse(localStorage.getItem('simmoteur-scores') || '[]'); } catch (e) { return []; } }
-function startMission(id){
-  const keys = Object.keys(MISSIONS);
-  if (!id) id = keys[Math.floor(Math.random() * keys.length)];
-  const mm = MISSIONS[id];
-  if (mm.eng && mm.eng !== ENG.fuel) applyEngine(mm.eng === 'd' ? 'd16' : 'e16');
-  else if (mm.turbo && ENG.turbo === 'none') applyEngine('d16');
+const fitsFor = (f, e) => (!f.eng || f.eng === e.fuel) && (!f.turbo || e.turbo !== 'none');
+// Code de cas : texte compact à transmettre aux élèves
+const encCase = o => 'SMP1-' + btoa(unescape(encodeURIComponent(JSON.stringify(o)))).replace(/=+$/, '');
+const decCase = c => { const b = c.trim().replace(/^SMP1-/, ''); return JSON.parse(decodeURIComponent(escape(atob(b + '==='.slice((b.length + 3) % 4))))); };
+function startMission(id, custom){
+  let meta, faults, engId, engSpec;
+  if (custom){
+    faults = custom.f.filter(x => FAULTS.some(f => f.id === x)); engId = custom.e; engSpec = custom.s || null;
+    meta = { client:custom.c || 'Le véhicule présente un problème : à vous de trouver lequel.', cold:!!custom.k, d:'prof', h:[], cor:'Cas composé par votre professeur.' };
+  } else {
+    const keys = Object.keys(MISSIONS);
+    if (!id) id = keys[Math.floor(Math.random() * keys.length)];
+    meta = MISSIONS[id]; faults = [id];
+    engId = meta.eng && meta.eng !== ENG.fuel ? (meta.eng === 'd' ? 'd16' : 'e16') : meta.turbo && ENG.turbo === 'none' ? 'd16' : null;
+  }
+  if (engId && (engId !== ENG.id || engSpec)) applyEngine(engId, engSpec);
   $('#preReset').onclick();
-  if (MISSIONS[id].cold){ $('#preCold').onclick(); } else { $('#preHot').onclick(); }
-  F[id] = true;
-  MIS = { id, t0:S.t, real0:Date.now(), hints:0, tries:0, done:false, wrong:null };
+  if (meta.cold) $('#preCold').onclick(); else $('#preHot').onclick();
+  faults.forEach(x => F[x] = true);
+  MIS = { id:custom ? 'custom' : id, meta, faults, t0:S.t, real0:Date.now(), hints:0, tries:0, done:false, wrong:null, fiche:{ constat:'', mesures:'', cause:'', rep:'' } };
   $('#faultLock').hidden = false; $('#faults').hidden = true; updateFaultCount();
   LOG.length = 0; log('Mission : véhicule reçu à l’atelier. Écoutez le client, puis diagnostiquez.', 'i');
   renderMission();
 }
 function endMission(){
-  if (MIS){ F[MIS.id] = false; if (!MIS.done) log('Mission abandonnée : la panne était « ' + FAULTS.find(f => f.id === MIS.id).label + ' »', 'w'); }
-  MIS = null; $('#faultLock').hidden = true; $('#faults').hidden = false; updateFaultCount(); renderMission();
+  if (MIS){ MIS.faults.forEach(x => F[x] = false); if (!MIS.done) log('Mission abandonnée : ' + MIS.faults.map(x => faultLabel(FAULTS.find(f => f.id === x))).join(', '), 'w'); }
+  MIS = null; $('#faultLock').hidden = true; $('#faults').hidden = false; buildFaults(); updateFaultCount(); renderMission();
+}
+function dtcText(){
+  const L = Object.values(DTC);
+  if (!L.length) return 'Aucun défaut mémorisé.';
+  return L.map(d => `${d.code} ${DTC_TXT[d.code] || ''} (${d.active ? 'présent' : 'fugitif'}${d.ff ? `, apparu à ${fmt(d.ff.rpm)} tr/min, ${fmt(d.ff.tCool)} °C` : ''})`).join('\n');
+}
+function ficheText(){
+  const f = MIS.fiche, m = MIS.meta;
+  return `FICHE DE DIAGNOSTIC — SimMoteur Pro\nMoteur : ${ENG.nom}\nDate : ${new Date().toLocaleString('fr-FR')}\n\nDemande du client : ${m.client}\n\nConstat : ${f.constat}\n\nMesures et contrôles : ${f.mesures}\n\nCause identifiée : ${f.cause}\n\nRéparation proposée : ${f.rep}\n`;
+}
+function renderProf(){
+  const eid = $('#pfEng') ? $('#pfEng').value : ENG.id;
+  const e = eid === 'custom' && CUSTOM ? deriveEngine(CUSTOM, 'custom') : deriveEngine(ENGINES[eid] || ENGINES.e16, eid);
+  const list = FAULTS.filter(f => fitsFor(f, e));
+  $('#pfFaults').innerHTML = list.map(f => `<label class="flt"><input type="checkbox" value="${f.id}"><span>${e.fuel === 'd' && f.labelD ? f.labelD : f.label}</span><code>${f.dtc}</code></label>`).join('');
 }
 function renderMission(){
   const el = $('#misBody');
-  const hist = misHistory();
+  const hist = misHistory(), lv = level();
   if (!MIS){
+    const engOpts = Object.entries(ENGINES).map(([k, v]) => `<option value="${k}"${k === ENG.id ? ' selected' : ''}>${v.nom}</option>`).join('') + (CUSTOM ? `<option value="custom"${ENG.id === 'custom' ? ' selected' : ''}>${CUSTOM.nom}</option>` : '');
     el.innerHTML = `<div class="grid mis">
       <div class="box"><div class="hd"><h3>Cas clients</h3><button class="btn primary" type="button" data-start="">Mission au hasard</button></div>
-        <p class="explain">Une panne est introduite sans vous dire laquelle. Faites parler le véhicule : combiné, capteurs, oscilloscope, réseau CAN, valise. Chaque indice coûte 12 points, chaque mauvaise réponse 15.</p>
+        <p class="explain">Une panne est introduite sans vous dire laquelle. Faites parler le véhicule : combiné, capteurs, oscilloscope, réseau CAN, valise. Remplissez la fiche de diagnostic au fil de vos mesures. Chaque indice coûte 12 points, chaque mauvaise réponse 15.</p>
         <div class="cases">${Object.entries(MISSIONS).map(([k, m]) => `<button class="case" type="button" data-start="${k}"><q>${m.client}</q><span class="meta"><span>${m.eng === 'd' ? 'Diesel' : m.eng === 'e' ? 'Essence' : m.turbo ? 'Turbo' : 'Tous moteurs'} · ${m.cold ? 'froid' : 'chaud'}</span><span>${'●'.repeat(DIFF[m.d])}${'○'.repeat(3 - DIFF[m.d])} ${m.d}</span></span></button>`).join('')}</div>
       </div>
-      <div class="box"><h3>Vos derniers résultats</h3>${hist.length ? `<table class="t"><tbody>${hist.slice(0, 12).map(r => `<tr><td>${r.label}</td><td class="n">${r.score} pts</td><td class="n muted">${r.date}</td></tr>`).join('')}</tbody></table>` : '<p class="empty">Aucune mission terminée pour l’instant.</p>'}</div>
+      <div class="grid">
+        <div class="box">
+          <div class="hd"><h3>Votre progression</h3><span class="note">${PROG.wins || 0} mission(s) réussie(s)</span></div>
+          <div class="lvl"><div><b class="score" style="font-size:34px">Niv. ${lv.n}</b> <span style="font:600 18px var(--f-disp)">${lv.t}</span></div><div class="note">${PROG.xp} XP${lv.next ? ` · prochain grade à ${lv.next} XP` : ' · grade maximal'}</div>
+            <div class="bar" style="margin-top:6px"><i style="width:${lv.next ? clamp((PROG.xp - lv.from) / (lv.next - lv.from) * 100, 0, 100) : 100}%;background:var(--accent)"></i></div></div>
+          <div class="badges">${BADGES.map(b => `<div class="badge ${PROG.badges[b[0]] ? 'got' : ''}" title="${b[2]}"><b>${b[1]}</b><span>${PROG.badges[b[0]] ? 'obtenu le ' + PROG.badges[b[0]] : b[2]}</span></div>`).join('')}</div>
+        </div>
+        <div class="box"><h3>Cas donné par le professeur</h3>
+          <p class="explain">Collez le code transmis par votre professeur.</p>
+          <div class="quick"><input id="caseCode" type="text" placeholder="SMP1-…" style="flex:1;min-width:180px;background:var(--panel2);border:1px solid var(--line2);border-radius:6px;padding:7px 10px;color:var(--text)"><button class="btn primary" type="button" id="caseLoad">Charger le cas</button></div>
+          <p class="note" id="caseMsg" style="margin-top:6px"></p>
+        </div>
+        <div class="box"><h3>Espace professeur : composer un cas</h3>
+          <div class="row"><div class="lab"><span>Moteur</span></div><select id="pfEng">${engOpts}</select></div>
+          <div class="row" style="margin-top:8px"><div class="lab"><span>Pannes à introduire (une ou plusieurs)</span></div><div class="flts" id="pfFaults" style="max-height:220px;overflow:auto;padding-right:6px"></div></div>
+          <div class="row" style="margin-top:8px"><div class="lab"><span>Ce que dit le client</span></div><textarea id="pfClient" rows="2" style="background:var(--panel2);border:1px solid var(--line2);border-radius:6px;padding:7px 10px;color:var(--text);resize:vertical">Depuis ce matin, la voiture ne marche plus comme avant.</textarea></div>
+          <label class="toggle" style="margin-top:8px"><input type="checkbox" id="pfCold"> Véhicule resté dehors la nuit (−5 °C)</label>
+          <div class="quick" style="margin-top:10px"><button class="btn primary" type="button" id="pfMake">Générer le code du cas</button><button class="btn" type="button" id="pfTry">Tester le cas</button></div>
+          <div id="pfOut" style="margin-top:8px"></div>
+        </div>
+        <div class="box"><h3>Derniers résultats</h3>${hist.length ? `<table class="t"><tbody>${hist.slice(0, 10).map(r => `<tr><td>${r.label}</td><td class="n">${r.score} pts</td><td class="n muted">${r.date}</td></tr>`).join('')}</tbody></table>` : '<p class="empty">Aucune mission terminée pour l’instant.</p>'}</div>
+      </div>
     </div>`;
+    renderProf();
+    $('#pfEng').onchange = renderProf;
+    const pfCase = () => { const f = [...$('#pfFaults').querySelectorAll('input:checked')].map(x => x.value); if (!f.length){ $('#pfOut').innerHTML = '<p class="note">Choisissez au moins une panne.</p>'; return null; } const e = $('#pfEng').value; return { e, s:e === 'custom' ? CUSTOM : undefined, f, c:$('#pfClient').value.trim(), k:$('#pfCold').checked ? 1 : 0 }; };
+    $('#pfMake').onclick = () => { const c = pfCase(); if (!c) return; const code = encCase(c); $('#pfOut').innerHTML = `<div class="calc"><div class="ln"><span>Code à transmettre</span><b style="word-break:break-all;font-size:12px">${esc(code)}</b></div></div><button class="btn" type="button" id="pfCopy" style="margin-top:6px">Copier le code</button>`; $('#pfCopy').onclick = () => { try { navigator.clipboard.writeText(code).then(() => { $('#pfCopy').textContent = 'Code copié'; }, () => { $('#pfCopy').textContent = 'Copie refusée : sélectionnez le code'; }); } catch (e) {} }; };
+    $('#pfTry').onclick = () => { const c = pfCase(); if (c) startMission(null, c); };
+    $('#caseLoad').onclick = () => { try { const c = decCase($('#caseCode').value); if (!c.f || !c.f.length) throw 0; if (c.e === 'custom' && c.s) CUSTOM = c.s; startMission(null, c); } catch (e) { $('#caseMsg').textContent = 'Code illisible : vérifiez qu’il est complet.'; } };
     return;
   }
-  const m = MISSIONS[MIS.id];
-  const fl = FAULTS.find(f => f.id === MIS.id);
-  const opts = FAULTS.filter(faultFits).sort((a, b) => faultLabel(a).localeCompare(faultLabel(b), 'fr')).map(f => `<option value="${f.id}">${faultLabel(f)}</option>`).join('');
+  const m = MIS.meta, multi = MIS.faults.length > 1;
+  const fls = MIS.faults.map(x => FAULTS.find(f => f.id === x));
+  const opts = FAULTS.filter(faultFits).sort((a, b) => faultLabel(a).localeCompare(faultLabel(b), 'fr'));
+  const fiche = MIS.fiche;
   el.innerHTML = `<div class="grid mis">
-    <div class="box">
-      <div class="hd"><h3>Le client explique</h3><span class="note">${m.cold ? 'Véhicule resté dehors la nuit' : 'Moteur chaud'} · difficulté ${m.d}</span></div>
-      <q class="client">${m.client}</q>
-      ${MIS.hints ? `<ol class="hints">${m.h.slice(0, MIS.hints).map(x => `<li>${x}</li>`).join('')}</ol>` : ''}
-      <div class="quick" style="margin-top:12px">
-        <button class="btn" type="button" id="misHint" ${MIS.done || MIS.hints >= m.h.length ? 'disabled' : ''}>Indice (−12 pts) · ${m.h.length - MIS.hints} restant(s)</button>
-        <button class="btn" type="button" id="misQuit">${MIS.done ? 'Réparer et revenir aux cas' : 'Abandonner'}</button>
+    <div class="grid">
+      <div class="box">
+        <div class="hd"><h3>Le client explique</h3><span class="note">${m.cold ? 'Véhicule resté dehors la nuit' : 'Moteur chaud'} · ${m.d === 'prof' ? 'cas du professeur' : 'difficulté ' + m.d}${multi ? ` · ${MIS.faults.length} pannes` : ''}</span></div>
+        <q class="client">${esc(m.client)}</q>
+        ${MIS.hints ? `<ol class="hints">${m.h.slice(0, MIS.hints).map(x => `<li>${x}</li>`).join('')}</ol>` : ''}
+        <div class="quick" style="margin-top:12px">
+          ${m.h.length ? `<button class="btn" type="button" id="misHint" ${MIS.done || MIS.hints >= m.h.length ? 'disabled' : ''}>Indice (−12 pts) · ${m.h.length - MIS.hints} restant(s)</button>` : ''}
+          <button class="btn" type="button" id="misQuit">${MIS.done ? 'Réparer et revenir aux cas' : 'Abandonner'}</button>
+        </div>
+      </div>
+      <div class="box">
+        <div class="hd"><h3>Fiche de diagnostic</h3><button class="btn" type="button" id="fiDtc">Insérer les défauts lus</button></div>
+        ${[['constat', 'Constat (ce que vous observez)'], ['mesures', 'Mesures et contrôles effectués'], ['cause', 'Cause identifiée'], ['rep', 'Réparation proposée']].map(([k, l]) => `<div class="row" style="margin-top:6px"><div class="lab"><span>${l}</span></div><textarea data-fi="${k}" rows="${k === 'mesures' ? 4 : 2}" style="background:var(--panel2);border:1px solid var(--line2);border-radius:6px;padding:7px 10px;color:var(--text);resize:vertical;font:13px var(--f-body)">${esc(fiche[k])}</textarea></div>`).join('')}
+        <div class="quick" style="margin-top:8px"><button class="btn" type="button" id="fiCopy">Copier la fiche</button></div>
       </div>
     </div>
     <div class="box">
       <h3>Votre diagnostic</h3>
-      ${MIS.done ? `<div class="verdict ok"><div class="score">${MIS.score} pts</div><p style="margin-top:6px"><b>${faultLabel(fl)}.</b> ${m.cor}</p></div>` : `
-        <div class="row"><label class="lab" for="misAns"><span>Élément en cause</span></label><select id="misAns"><option value="">— choisir —</option>${opts}</select></div>
+      ${MIS.done ? `<div class="verdict ok"><div class="score">${MIS.score} pts</div>${fls.map(fl => `<p style="margin-top:6px"><b>${faultLabel(fl)}</b> <code>${fl.dtc}</code>${!multi && MISSIONS[fl.id] ? ' — ' + MISSIONS[fl.id].cor : ''}</p>`).join('')}${multi || m.d === 'prof' ? '<p class="note" style="margin-top:6px">Corrigé détaillé avec votre professeur.</p>' : ''}</div>` : `
+        <p class="explain">${multi ? `Il y a <b>${MIS.faults.length} pannes</b> : cochez-les toutes.` : 'Cochez l’élément en cause.'}</p>
+        <div class="flts" id="misAns" style="max-height:340px;overflow:auto;padding-right:6px">${opts.map(f => `<label class="flt"><input type="checkbox" value="${f.id}"><span>${faultLabel(f)}</span><code></code></label>`).join('')}</div>
         <button class="btn primary" type="button" id="misOk" style="margin-top:10px">Valider le diagnostic</button>
-        ${MIS.wrong ? `<div class="verdict no" style="margin-top:10px">« ${MIS.wrong} » : ce n’est pas ça. Continuez vos mesures.</div>` : ''}`}
+        ${MIS.wrong ? `<div class="verdict no" style="margin-top:10px">${MIS.wrong}</div>` : ''}`}
     </div></div>`;
+  el.querySelectorAll('[data-fi]').forEach(t => t.oninput = () => { MIS.fiche[t.dataset.fi] = t.value; });
+  $('#fiDtc').onclick = () => { MIS.fiche.mesures = (MIS.fiche.mesures ? MIS.fiche.mesures + '\n' : '') + 'Lecture valise : ' + dtcText(); el.querySelector('[data-fi="mesures"]').value = MIS.fiche.mesures; };
+  $('#fiCopy').onclick = () => { try { navigator.clipboard.writeText(ficheText()).then(() => { $('#fiCopy').textContent = 'Fiche copiée'; }, () => { $('#fiCopy').textContent = 'Copie refusée'; }); } catch (e) {} };
   const hb = $('#misHint'); if (hb) hb.onclick = () => { MIS.hints++; renderMission(); };
   $('#misQuit').onclick = endMission;
   const ok = $('#misOk');
   if (ok) ok.onclick = () => {
-    const v = $('#misAns').value; if (!v) return;
+    const sel = [...$('#misAns').querySelectorAll('input:checked')].map(x => x.value); if (!sel.length) return;
     MIS.tries++;
-    if (v === MIS.id){
+    const good = sel.filter(x => MIS.faults.includes(x)).length, bad = sel.length - good;
+    if (good === MIS.faults.length && bad === 0){
       const secs = (Date.now() - MIS.real0) / 1000;
-      MIS.score = Math.max(20, 100 - MIS.hints * 12 - (MIS.tries - 1) * 15 - Math.floor(secs / 60) * 4);
+      const ficheBonus = Object.values(MIS.fiche).filter(v => v.trim().length > 8).length * 5;
+      MIS.score = Math.max(20, 100 + (multi ? 40 : 0) + ficheBonus - MIS.hints * 12 - (MIS.tries - 1) * 15 - Math.floor(secs / 60) * 4);
       MIS.done = true; MIS.wrong = null;
-      log(`Mission réussie : ${faultLabel(fl)} (${MIS.score} pts)`, 'i');
-      const hist = misHistory(); hist.unshift({ label:faultLabel(fl), score:MIS.score, date:new Date().toLocaleDateString('fr-FR') });
+      const lab = fls.map(faultLabel).join(' + ');
+      log(`Mission réussie : ${lab} (${MIS.score} pts)`, 'i');
+      const hist = misHistory(); hist.unshift({ label:lab, score:MIS.score, date:new Date().toLocaleDateString('fr-FR') });
       try { localStorage.setItem('simmoteur-scores', JSON.stringify(hist.slice(0, 30))); } catch (e) {}
-    } else { MIS.wrong = faultLabel(FAULTS.find(f => f.id === v)); }
+      PROG.wins = (PROG.wins || 0) + 1; saveProg(); addXp(MIS.score);
+      toast(`Diagnostic juste : ${MIS.score} pts`, ficheBonus ? `dont ${ficheBonus} pts pour la fiche` : 'Pensez à remplir la fiche : jusqu’à +20 pts', '✓');
+      if (isD()) award('diesel'); if (!MIS.hints) award('clean'); if (PROG.wins >= 5) award('five'); if (multi) award('multi');
+    } else MIS.wrong = good && !bad ? `Bonne piste : ${good} panne(s) trouvée(s) sur ${MIS.faults.length}. Il en manque.` : bad && good ? `${good} bonne(s) réponse(s), mais ${bad} élément(s) coché(s) à tort.` : 'Ce n’est pas ça. Continuez vos mesures.';
     renderMission();
   };
 }
@@ -3973,7 +4333,6 @@ $('#misBody').addEventListener('click', e => { const b = e.target.closest('[data
 /* =====================================================================
    COURS, GLOSSAIRE, ABRÉVIATIONS, CONTRÔLE TECHNIQUE
    ===================================================================== */
-const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[c]));
 function hl(txt, q){ const t = esc(txt); if (!q) return t; const re = new RegExp('(' + q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi'); return t.replace(re, '<mark>$1</mark>'); }
 function renderCours(){
   const q = $('#coursQ').value.trim();
@@ -4000,7 +4359,7 @@ readColors();
 buildNet();
 try { const sv = JSON.parse(localStorage.getItem('simmoteur-engine') || 'null'); if (sv && (ENGINES[sv.id] || sv.spec)){ if (sv.spec) CUSTOM = sv.spec; applyEngine(sv.id, sv.spec); } else applyEngine('e16'); } catch (e) { applyEngine('e16'); }
 setScopeCh('ckp');
-try { const t = localStorage.getItem('simmoteur-tab'); if (t && document.getElementById('tab-' + t)) showTab(t); } catch (e) {}
+try { const t = localStorage.getItem('simmoteur-tab'); if (t && document.getElementById('tab-' + t)) showTab(t); else showTab('dash'); } catch (e) { showTab('dash'); }
 // Démonstration au chargement : moteur chaud au ralenti
 S.tCool = 88; S.tAir = 27; S.o2Temp = 650; S.lamSlow = 1; E.thermoT = 700;
 setKey(1); setTimeout(() => setKey(2), 400); setTimeout(() => { if (S.key === 2) setKey(1); }, 1500);
