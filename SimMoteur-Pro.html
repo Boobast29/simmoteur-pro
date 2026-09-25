@@ -106,7 +106,7 @@ input[type=range]{width:100%;accent-color:var(--accent);height:22px;margin:0}
 .pedal .pl b{font:700 15px var(--f-disp);letter-spacing:.08em;text-transform:uppercase;text-shadow:0 1px 2px #000}
 .pedal .pl small{font:500 12px var(--f-mono)}
 .pedal.active{border-color:var(--text)}
-.seg.lever{display:grid;grid-template-columns:repeat(3,1fr);margin-top:6px}
+.seg.lever{display:grid;grid-template-columns:repeat(4,1fr);margin-top:6px}
 .seg.lever button{font-size:22px;padding:6px 0;display:flex;flex-direction:column;align-items:center;line-height:1}
 .seg.lever button small{font:500 10px var(--f-body);letter-spacing:.06em;margin-top:3px;text-transform:uppercase}
 .hgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:6px;background:#0b1115;border:1px solid var(--line);border-radius:8px;padding:8px}
@@ -115,6 +115,33 @@ input[type=range]{width:100%;accent-color:var(--accent);height:22px;margin:0}
 .hgrid button.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
 .hgrid .nbtn{grid-column:1/-1;font-size:13px;letter-spacing:.08em;text-transform:uppercase;padding:5px 0}
 .hnote{align-self:center;text-align:center;font-size:11px;color:var(--dim)}
+/* ---------- Multimètre */
+.dmmg{grid-template-columns:340px minmax(0,1fr);align-items:start}
+@media (max-width:900px){.dmmg{grid-template-columns:minmax(0,1fr)}}
+.dmm{background:linear-gradient(180deg,#3a3f24,#2b2f1b);border:2px solid #57603a;border-radius:22px;padding:18px;display:flex;flex-direction:column;gap:12px;box-shadow:inset 0 0 0 6px #22261a}
+.lcd{background:#b6c49c;color:#1b2412;border-radius:8px;padding:10px 14px;display:grid;grid-template-columns:auto 1fr auto;align-items:end;gap:8px;box-shadow:inset 0 2px 6px rgba(0,0,0,.4)}
+.lcd b{font:500 46px/1 var(--f-mono);text-align:right;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.lcdm,.lcdu{font:600 14px var(--f-mono)}
+.dmmseg{display:grid;grid-template-columns:repeat(3,1fr);background:#1c2014;border-color:#454c2c}
+.dmmseg button{font-size:18px}
+.dmmsel{display:flex;flex-direction:column;gap:4px;font-size:11.5px;letter-spacing:.07em;text-transform:uppercase;color:#d8dcb8}
+.probes{display:flex;align-items:center;gap:8px;font-size:12.5px;color:#d8dcb8}
+.pr{width:10px;height:10px;border-radius:50%;background:#e04a3a;box-shadow:14px 0 0 #111}
+.pr + span{margin-left:14px}
+/* ---------- Gaz */
+.gasgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.gas{background:#0b1115;border:1px solid var(--line);border-radius:8px;padding:10px 12px;display:flex;flex-direction:column;gap:3px}
+.gas .k{font:600 12px var(--f-disp);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.gas .v{font:500 30px/1.1 var(--f-mono);font-variant-numeric:tabular-nums;color:var(--ch2)}
+.gas .v small{font-size:13px;color:var(--muted);margin-left:4px}
+.gas .s{font-size:11.5px;color:var(--dim)}
+.bar{height:8px;border-radius:4px;background:var(--line);overflow:hidden}
+.bar i{display:block;height:100%}
+.steps{display:flex;flex-direction:column;gap:6px;margin:0 0 10px;padding:0;list-style:none}
+.steps li{display:grid;grid-template-columns:22px 1fr auto;gap:8px;align-items:center;padding:7px 10px;border-radius:6px;background:var(--panel2);border:1px solid var(--line);font-size:13px}
+.steps li.cur{border-color:var(--accent)}
+.steps li.done{opacity:.75}
+.steps li i{font-style:normal;font:600 13px var(--f-mono);color:var(--dim)}
 /* ---------- Onglets */
 .tabs{display:flex;gap:2px;border-bottom:1px solid var(--line);overflow-x:auto;margin-bottom:14px;scrollbar-width:thin}
 .tabs button{background:none;border:0;border-bottom:2px solid transparent;padding:10px 14px 9px;font:600 15px var(--f-disp);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);white-space:nowrap}
@@ -309,11 +336,11 @@ mark{background:color-mix(in srgb,var(--accent) 40%,transparent);color:inherit;b
         <div class="row">
           <div class="lab"><span>Boîte de vitesses</span><b id="leverV">P</b></div>
           <div class="seg" role="group" aria-label="Type de boîte" id="boxSeg"><button type="button" data-b="auto" class="on">Automatique</button><button type="button" data-b="manu">Manuelle 5 vitesses</button></div>
-          <div class="seg lever" role="group" aria-label="Levier automatique" id="autoSel"><button type="button" data-l="P" class="on">P<small>Parking</small></button><button type="button" data-l="N">N<small>Neutre</small></button><button type="button" data-l="D">D<small>Drive</small></button></div>
+          <div class="seg lever" role="group" aria-label="Levier automatique" id="autoSel"><button type="button" data-l="P" class="on">P<small>Parking</small></button><button type="button" data-l="R">R<small>Arrière</small></button><button type="button" data-l="N">N<small>Neutre</small></button><button type="button" data-l="D">D<small>Drive</small></button></div>
           <div class="hgrid" id="manuSel" hidden role="group" aria-label="Grille de vitesses">
             <button type="button" data-g="1">1</button><button type="button" data-g="3">3</button><button type="button" data-g="5">5</button>
             <button type="button" data-g="0" class="nbtn">N · point mort</button>
-            <button type="button" data-g="2">2</button><button type="button" data-g="4">4</button><span class="hnote">embrayage piloté</span>
+            <button type="button" data-g="2">2</button><button type="button" data-g="4">4</button><button type="button" data-g="-1">R</button>
           </div>
         </div>
         <label class="toggle"><input type="checkbox" id="clim"> Climatisation demandée</label>
@@ -348,8 +375,11 @@ mark{background:color-mix(in srgb,var(--accent) 40%,transparent);color:inherit;b
       <button role="tab" data-t="dash" aria-selected="true">Tableau de bord</button>
       <button role="tab" data-t="io" aria-selected="false">Capteurs &amp; actionneurs</button>
       <button role="tab" data-t="scope" aria-selected="false">Oscilloscope</button>
+      <button role="tab" data-t="dmm" aria-selected="false">Multimètre</button>
+      <button role="tab" data-t="rec" aria-selected="false">Enregistreur</button>
       <button role="tab" data-t="can" aria-selected="false">Multiplexage CAN</button>
       <button role="tab" data-t="diag" aria-selected="false">Valise diagnostic<span class="cnt" id="dtcCnt" hidden>0</span></button>
+      <button role="tab" data-t="gas" aria-selected="false">Analyse des gaz</button>
       <button role="tab" data-t="maps" aria-selected="false">Cartographies</button>
       <button role="tab" data-t="bva" aria-selected="false">Boîte auto</button>
       <button role="tab" data-t="mis" aria-selected="false">Missions atelier</button>
@@ -430,6 +460,45 @@ mark{background:color-mix(in srgb,var(--accent) 40%,transparent);color:inherit;b
       </div>
     </section>
 
+    <!-- ===== Multimètre -->
+    <section class="tab" id="tab-dmm">
+      <div class="grid dmmg">
+        <div class="dmm">
+          <div class="lcd"><span class="lcdm" id="dmmMode">V ⎓</span><b id="dmmVal">0,00</b><span class="lcdu" id="dmmUnit">V</span></div>
+          <div class="seg dmmseg" id="dmmSeg" role="group" aria-label="Calibre"><button type="button" data-m="V" class="on">V ⎓</button><button type="button" data-m="VAC">V ~</button><button type="button" data-m="R">Ω</button></div>
+          <label class="dmmsel">Point de mesure<select id="dmmPt"></select></label>
+          <div class="probes"><span class="pr red"></span><span id="dmmProbe">—</span></div>
+        </div>
+        <div class="box">
+          <h3>Ce que vous mesurez</h3>
+          <div id="dmmInfo"></div>
+          <div class="explain" style="margin-top:12px">
+            <p><b>Voltmètre.</b> Contact mis, en parallèle, sans rien débrancher. On vérifie qu’une alimentation arrive et qu’un signal varie. Un voltmètre fait la moyenne : pour un signal qui commute (injecteur, bobine, RCO), prenez l’oscilloscope.</p>
+            <p><b>Ohmmètre.</b> Contact coupé, composant ou faisceau débranché. On contrôle un bobinage, une résistance, la continuité d’un fil (≈ 0 Ω) et son isolement par rapport à la masse (infini).</p>
+            <p><b>Méthode.</b> Tension correcte au calculateur mais pas au capteur : le fil est coupé. Composant hors valeur : on le remplace. Faisceau isolé de la masse à 0 Ω : court-circuit à chercher.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== Enregistreur -->
+    <section class="tab" id="tab-rec">
+      <div class="box">
+        <div class="scopebar">
+          <label><span class="c1">Voie A</span><select id="rc0"></select></label>
+          <label><span class="c2">Voie B</span><select id="rc1"></select></label>
+          <label><span style="color:#ee7bc0">Voie C</span><select id="rc2"></select></label>
+          <label><span style="color:#8be26b">Voie D</span><select id="rc3"></select></label>
+          <label>Durée<select id="recWin"><option value="30">30 s</option><option value="60" selected>60 s</option><option value="120">2 min</option><option value="180">3 min</option></select></label>
+          <button class="btn primary" type="button" id="recRun">Figer</button>
+          <button class="btn" type="button" id="recCopy">Copier en CSV</button>
+          <button class="btn" type="button" id="recDl">Télécharger CSV</button>
+        </div>
+        <div class="screen"><canvas id="recCv" style="display:block;width:100%;height:460px"></canvas></div>
+        <p class="note" id="recNote" style="margin-top:8px">Survolez les courbes pour lire les valeurs à un instant. Le CSV (séparateur « ; ») s’ouvre dans un tableur.</p>
+      </div>
+    </section>
+
     <!-- ===== CAN -->
     <section class="tab" id="tab-can">
       <div class="grid can">
@@ -487,6 +556,27 @@ mark{background:color-mix(in srgb,var(--accent) 40%,transparent);color:inherit;b
           <div class="acts" id="acts"></div>
           <p class="note" id="actState" style="margin-top:8px"></p>
         </div>
+      </div>
+    </section>
+
+    <!-- ===== Gaz -->
+    <section class="tab" id="tab-gas">
+      <div class="grid">
+        <div class="box">
+          <div class="hd"><h3>Analyseur 4 gaz + NOx</h3><span class="note">Sonde de prélèvement dans la sortie d’échappement</span></div>
+          <div class="gasgrid" id="gasLcd"></div>
+        </div>
+        <div class="cols2">
+          <div class="box"><div class="hd"><h3>Test pollution du contrôle technique</h3><span class="note">Essence catalysée avec sonde lambda</span></div><div id="ctBox"></div>
+            <div class="quick" style="margin-top:10px"><button class="btn primary" type="button" id="ctGo">Commencer le test</button><button class="btn" type="button" id="ctHold" hidden>Tenir 2 700 tr/min pour moi</button><button class="btn" type="button" id="ctStop" hidden>Arrêter</button></div>
+            <p class="note" style="margin-top:8px">Limites usuelles pour une essence catalysée avec sonde lambda : CO ≤ 0,3 % au ralenti, CO ≤ 0,2 % et λ entre 0,97 et 1,03 au ralenti accéléré. Vérifiez les seuils en vigueur pour le véhicule contrôlé.</p></div>
+          <div class="box">
+            <div class="hd"><h3>Catalyseur trois voies</h3><span class="note" id="catNote"></span></div>
+            <div id="catBox"></div>
+            <canvas id="winCv" style="display:block;width:100%;height:220px;margin-top:10px"></canvas>
+          </div>
+        </div>
+        <div class="box"><h3>Lire les gaz d’échappement</h3><div class="fiches" id="gasCours"></div></div>
       </div>
     </section>
 
@@ -588,6 +678,8 @@ const RATIOS = [0, 3.72, 2.05, 1.43, 1.03, 0.79], FINAL = 4.06, RW = 0.31, MASS 
 const TDC = [0, 540, 180, 360];
 // Lois de passage BVA : vitesse (km/h) de montée / descente selon rapport et pédale
 const BVA_UP = (g, p) => [0, 18, 34, 52, 72][g] * (1 + 1.9 * Math.pow(p / 100, 1.4));
+const RATIO_R = -3.2;
+const gearRatio = g => g === -1 ? RATIO_R : RATIOS[Math.max(1, g)];
 const bvaTR = sr => sr < 0.85 ? 2.0 - 1.18 * clamp(sr, 0, 0.85) : 1;
 const BVA_DOWN = (g, p) => [0, 0, 11, 22, 36, 52][g] * (1 + 1.6 * Math.pow(p / 100, 1.6));   // PMH compression par cylindre (ordre 1-3-4-2)
 const Tmax = n => Math.max(55, 150 - 4 * Math.pow(n / 1000 - 4, 2));
@@ -679,7 +771,8 @@ function initState(){
     v:0, gear:1, lock:false, shiftT:0, lastShift:-9,
     lamEx:5, lamBuf:[], lamM:5, o2v:0.45, o2Temp:15, lamSlow:1.05, o2dn:0.45, o2dnDelay:0.45,
     cylFire:[false,false,false,false], knockLevel:0, tind:0, tc:0, fuelGs:0,
-    odo:48213.4, histAcc:0, altOk:true, crankT:0
+    odo:48213.4, histAcc:0, altOk:true, crankT:0, catT:15, lamB:1, unb:0, burnN:0,
+    gas:{ co:0, hc:0, nox:0, co2:0.04, o2:20.9 }, raw:{ co:0, hc:0, nox:0, co2:0.04, o2:20.9 }, eff:{ co:0, hc:0, nox:0 }
   });
 }
 function initEcu(){
@@ -781,8 +874,8 @@ function encode(){
   CAN.data[0x110] = d1;
   const mil = milOn(), cons = u16(S.fuelGs * 3600 / 745 * 10);
   CAN.data[0x120] = [u8(E.tCool + 40), u8(E.tAir + 40), (mil ? 1 : 0) | (E.limp ? 2 : 0) | (E.tCool > 112 ? 4 : 0), cons[0], cons[1], E.fan];
-  CAN.data[0x130] = [inGearNow() ? S.gear : 0, S.box === 'manu' ? 5 : ({ P:0, N:1, D:3 }[S.lever] ?? 0), S.lock ? 1 : 0, S.shiftT > 0 ? 30 : 0];
-  const sp = u16(S.v * 3.6 * 100);
+  CAN.data[0x130] = [!inGearNow() ? 0 : S.gear === -1 ? 15 : S.gear, S.box === 'manu' ? 5 : ({ P:0, N:1, R:2, D:3 }[S.lever] ?? 0), S.lock ? 1 : 0, S.shiftT > 0 ? 30 : 0];
+  const sp = u16(Math.abs(S.v) * 3.6 * 100);
   CAN.data[0x1A0] = [sp[0], sp[1], S.brake > 3 ? 1 : 0, CAN.alive];
   CAN.data[0x220] = [u8(S.pClim * 10), S.clim ? 1 : 0, S.clim ? 40 : 0];
   CAN.data[0x2A0] = [S.key, u8(S.amb + 40), u8(S.vbat * 10), S.clim ? 1 : 0];
@@ -912,7 +1005,7 @@ function ecu(dt){
 
   // Vitesse et rapport reçus par le CAN
   const absRx = delivered(0x1A0, 'ECM'), bvaRx = delivered(0x130, 'ECM');
-  E.speed = absRx ? S.v * 3.6 : 0;
+  E.speed = absRx ? Math.abs(S.v) * 3.6 : 0;
   mon('U0121', !absRx && !F.canHcut, 0.5, dt);
   mon('U0101', !bvaRx && !F.canHcut, 0.5, dt);
   const climReq = delivered(0x220, 'ECM') && S.clim;
@@ -1124,6 +1217,7 @@ function physics(dt){
   const lamB = burn ? (S.airCyl * burn) / (fuelBurnt * 14.7) : 5;
   S.lamEx = S.rpm < 30 ? 5 : fuelBurnt > 0 ? airTot / (fuelBurnt * 14.7) : 5;
   S.fuelGs = fuelTot * S.rpm / 120 / 1000;
+  S.lamB = lamB; S.unb = fuelTot > 0 ? (fuelTot - fuelBurnt) / fuelTot : 0; S.burnN = burn;
 
   // Couple
   const n = S.rpm;
@@ -1148,14 +1242,14 @@ function physics(dt){
   // Transmission : boîte automatique (convertisseur) ou manuelle (embrayage piloté)
   if (S.shiftT > 0) S.shiftT -= dt;
   const manu = S.box === 'manu';
-  const inGear = S.key >= 1 && (manu ? S.gear > 0 : S.lever === 'D');
-  const ratio = RATIOS[Math.max(1, S.gear)] * FINAL;
+  const inGear = S.key >= 1 && (manu ? S.gear !== 0 : S.lever === 'D' || S.lever === 'R');
+  const ratio = gearRatio(S.gear) * FINAL;
   const wr = S.v / RW * 60 / TAU * ratio;
   let Tc = 0;
   const bvaGetsEcm = delivered(0x110, 'BVA');
   const bvaLimp = !manu && (!bvaGetsEcm || F.bvaTurb);
   if (inGear){
-    if (!manu){
+    if (!manu && S.lever === 'D'){
       if (bvaLimp){
         if (S.gear !== 3 && S.v > 0.5){ S.gear = 3; S.shiftT = 0.35; log(F.bvaTurb ? 'BVA : régime turbine inconnu → mode secours, 3e rapport figé' : 'BVA sans information moteur : mode secours, 3e rapport figé', 'c'); }
       } else if (S.t - S.lastShift > 0.8){
@@ -1185,18 +1279,17 @@ function physics(dt){
   S.nt = inGear ? (S.lock ? n : wr) : (manu ? 0 : n * 0.98);
   const slipPow = !S.lock && inGear && !manu ? Math.abs(Tc * (n - wr)) * TAU / 60 : 0;
   S.atf += (slipPow * 0.00012 - (S.atf - Math.max(S.amb, S.tCool * 0.85)) * 0.01) * dt;
-  const Fdrag = 0.5 * 1.2 * 0.65 * S.v * S.v + (S.v > 0.05 ? MASS * 9.81 * 0.012 : 0);
+  const Fdrag = 0.5 * 1.2 * 0.65 * S.v * Math.abs(S.v) + (Math.abs(S.v) > 0.05 ? MASS * 9.81 * 0.012 * Math.sign(S.v) : 0);
+  const brakeTo0 = (v, d) => v > 0 ? Math.max(0, v - d) : Math.min(0, v + d);
   const Fbrake = (S.brake / 100) * MASS * 8 + (!manu && S.lever === 'P' ? 20000 : 0);
 
   if (S.lock){
-    const rT = RATIOS[S.gear] * FINAL;
+    const rT = gearRatio(S.gear) * FINAL;
     const Fw = (S.tind - Tf - Tacc) * rT * 0.92 / RW;
     const meq = MASS + J * Math.pow(rT / RW, 2);
-    let Fnet = Fw - Fdrag; const acc0 = Fnet / meq;
-    S.v += acc0 * dt;
-    if (Fbrake > 0) S.v = Math.max(0, S.v - Fbrake / meq * dt);
-    S.v = Math.max(0, S.v);
-    S.rpm = S.v / RW * 60 / TAU * rT;
+    S.v += (Fw - Fdrag) / meq * dt;
+    if (Fbrake > 0) S.v = brakeTo0(S.v, Fbrake / meq * dt);
+    S.rpm = Math.max(0, S.v / RW * 60 / TAU * rT);
   } else {
     S.rpm += (S.tind + Ts - Tf - Tacc - Tcomp - Tc) * 60 / TAU / J * dt;
     S.rpm = Math.max(0, S.rpm);
@@ -1204,10 +1297,10 @@ function physics(dt){
     const Fw = Tc * (manu ? 1 : bvaTR(srW)) * ratio * 0.9 / RW;
     let a = (Fw - Fdrag) / MASS;
     S.v += a * dt;
-    if (Fbrake > 0 || S.v < 0){ const dec = Fbrake / MASS * dt; S.v = S.v > 0 ? Math.max(0, S.v - dec) : Math.min(0, S.v + dec); }
-    if (S.v < 0) S.v = 0;
+    if (Fbrake > 0) S.v = brakeTo0(S.v, Fbrake / MASS * dt);
+    if (Math.abs(S.v) < 0.02 && Math.abs(Fw) < MASS * 9.81 * 0.012) S.v = 0;
   }
-  S.odo += S.v * dt / 1000;
+  S.odo += Math.abs(S.v) * dt / 1000;
 
   // Moteur tournant / calé
   if (burn && S.rpm > 60) S.burnT += dt; else S.burnT = Math.max(0, S.burnT - dt * 2);
@@ -1231,7 +1324,7 @@ function physics(dt){
   const fanLvl = E.fan === 2 ? 2.2 : E.fan === 1 ? 1.2 : 0;
   const rad = 0.011 * open * (1 + 0.08 * S.v + fanLvl);
   S.tCool += (Q - (0.004 + rad) * (S.tCool - S.amb)) * dt;
-  const tAirT = S.amb + (S.v < 5 ? 0.22 : 0.06) * (S.tCool - S.amb) + (S.running ? 3 : 0);
+  const tAirT = S.amb + (Math.abs(S.v) < 5 ? 0.22 : 0.06) * (S.tCool - S.amb) + (S.running ? 3 : 0);
   S.tAir += (tAirT - S.tAir) * Math.min(1, dt / 25);
 
   // Sonde lambda : retard de transport des gaz + temps de réponse
@@ -1253,6 +1346,30 @@ function physics(dt){
   else if (F.cat) { S.o2dnDelay += (lamV(S.lamM) - S.o2dnDelay) * Math.min(1, dt / 0.15); dnT = S.o2dnDelay; }
   else dnT = 0.08 + 0.82 / (1 + Math.exp((S.lamSlow - 1.012) * 70));
   S.o2dn += (dnT - S.o2dn) * Math.min(1, dt / 0.2);
+
+  // Émissions : gaz bruts à la sortie moteur puis conversion dans le catalyseur
+  const catTarget = S.running ? 380 + maf * 7 + S.unb * 250 : S.amb;
+  S.catT += (catTarget - S.catT) * Math.min(1, dt / (S.running ? 40 : 300));
+  const light = clamp((S.catT - 250) / 100, 0, 1) * (F.cat ? 0.25 : 1);
+  const lb = S.lamB, le = S.lamM;
+  const raw = S.running && S.rpm > 50 ? {
+    co: lb < 1 ? 0.6 + (1 - lb) * 28 : Math.max(0.08, 0.6 - (lb - 1) * 10),
+    hc: 150 + S.unb * 6000 + (lb > 1.2 ? (lb - 1.2) * 3000 : 0) + (S.tCool < 40 ? (40 - S.tCool) * 6 : 0) + (E.dfco ? 60 : 0),
+    nox: Math.max(20, 80 + 2400 * clamp((S.p - 0.2) / 0.8, 0, 1) * Math.exp(-Math.pow((lb - 1.06) / 0.09, 2)) * (1 + (E.adv - 15) * 0.02)) * (E.dfco ? 0.05 : 1),
+    co2: E.dfco ? 0.5 : (lb <= 1 ? 15 - (1 - lb) * 18 : 15 / lb) * (1 - S.unb),
+    o2: E.dfco ? 20.5 : S.lamEx > 1 ? (1 - 1 / S.lamEx) * 20.9 + 0.3 : 0.3,
+  } : { co:0, hc:0, nox:0, co2:0.04, o2:20.9 };
+  S.raw = raw;
+  S.eff = {
+    co: light * (le >= 0.995 ? 0.98 : clamp(0.98 - (0.995 - le) * 8, 0.1, 0.98)),
+    hc: light * (le >= 0.995 ? 0.96 : clamp(0.96 - (0.995 - le) * 6, 0.1, 0.96)),
+    nox: light * (le <= 1.003 ? 0.97 : clamp(0.97 - (le - 1.003) * 30, 0, 0.97)),
+  };
+  const tail = S.running && S.rpm > 50 ? {
+    co: raw.co * (1 - S.eff.co), hc: raw.hc * (1 - S.eff.hc), nox: raw.nox * (1 - S.eff.nox),
+    co2: Math.min(15.6, raw.co2 + raw.co * S.eff.co * 0.9), o2: Math.max(0.05, raw.o2 * (1 - light * 0.7)),
+  } : raw;
+  for (const k in tail) S.gas[k] += (tail[k] - S.gas[k]) * Math.min(1, dt / 2.5);
 }
 
 /* =====================================================================
@@ -1283,6 +1400,8 @@ function tick(now){
     sense(); ecu(dt); physics(dt);
     S.histAcc += dt;
     if (S.histAcc >= 0.02){ S.histAcc = 0; record(); }
+    S.recAcc = (S.recAcc || 0) + dt;
+    if (S.recAcc >= 0.1){ S.recAcc = 0; recRecord(); }
   }
   encode();
   driveTick(real); updateReadout();
@@ -1297,8 +1416,8 @@ function tick(now){
    ===================================================================== */
 function setKey(k){
   if (k === 2 && S.key === 0) S.key = 1;
-  if (k === 2 && !S.running && (S.box === 'auto' ? S.lever === 'D' : S.gear > 0)){
-    log(S.box === 'auto' ? 'Démarreur interdit : levier en D (contacteur multifonction). Passez en P ou N.' : 'Démarreur interdit : une vitesse est engagée. Passez au point mort.', 'w');
+  if (k === 2 && !S.running && (S.box === 'auto' ? S.lever !== 'P' && S.lever !== 'N' : S.gear !== 0)){
+    log(S.box === 'auto' ? 'Démarreur interdit : levier en ' + S.lever + ' (contacteur multifonction). Passez en P ou N.' : 'Démarreur interdit : une vitesse est engagée. Passez au point mort.', 'w');
     if (typeof flashHint === 'function') flashHint(S.box === 'auto' ? 'Levier en P ou N pour démarrer' : 'Point mort pour démarrer');
     k = S.key || 1;
   }
@@ -1348,8 +1467,8 @@ setPedal(0); setBrake(0);
 bindRange('amb', v => { S.amb = v; $('#ambV').textContent = v + ' °C'; });
 $('#pedalQuick').addEventListener('click', e => { const b = e.target.closest('button'); if (b) setHold(+b.dataset.p); });
 $('#clim').addEventListener('change', e => { S.clim = e.target.checked; log(S.clim ? 'Demande de climatisation (reçue par le CAN depuis le calculateur de clim)' : 'Climatisation arrêtée'); });
-const inGearNow = () => S.box === 'manu' ? S.gear > 0 : S.lever === 'D';
-const gearLabel = () => S.box === 'manu' ? (S.gear ? String(S.gear) : 'N') : S.lever === 'D' ? 'D' + S.gear : S.lever;
+const inGearNow = () => S.box === 'manu' ? S.gear !== 0 : S.lever === 'D' || S.lever === 'R';
+const gearLabel = () => S.box === 'manu' ? (S.gear === -1 ? 'R' : S.gear ? String(S.gear) : 'N') : S.lever === 'D' ? 'D' + S.gear : S.lever;
 function driveUI(){
   [...$('#boxSeg').children].forEach(b => b.classList.toggle('on', b.dataset.b === S.box));
   $('#autoSel').hidden = S.box !== 'auto'; $('#manuSel').hidden = S.box !== 'manu';
@@ -1359,30 +1478,35 @@ function driveUI(){
 }
 function setLever(l){
   if (S.box !== 'auto') return;
-  if (l === 'P' && S.v > 0.4){ log('Passage en P refusé : véhicule en mouvement', 'w'); return; }
+  if (l === 'P' && Math.abs(S.v) > 0.4){ log('Passage en P refusé : véhicule en mouvement', 'w'); flashHint('Arrêtez-vous avant P'); return; }
+  if (l === 'R' && S.v > 0.4){ log('Marche arrière refusée : le véhicule avance', 'w'); flashHint('Arrêtez-vous avant R'); return; }
+  if (l === 'D' && S.v < -0.4){ log('D refusé : le véhicule recule', 'w'); flashHint('Arrêtez-vous avant D'); return; }
   if (l === S.lever) return;
   S.lever = l; S.lock = false;
-  if (l === 'D'){ S.gear = S.v < 0.5 ? 1 : S.gear; log('Levier en D : le convertisseur transmet le couple, le ralenti est chargé'); }
+  if (l === 'D'){ S.gear = S.v < 0.5 || S.gear < 1 ? 1 : S.gear; log('Levier en D : le convertisseur transmet le couple, le ralenti est chargé'); }
+  if (l === 'R'){ S.gear = -1; log('Levier en R : marche arrière, feux de recul allumés'); }
   if (l === 'N') log('Levier en N : aucun rapport engagé');
   driveUI();
 }
 function shiftTo(g){
   if (S.box !== 'manu') return;
-  g = clamp(g, 0, 5);
+  g = clamp(g, -1, 5);
   if (g === S.gear) return;
+  if (g === -1 && S.v > 0.3){ log('Marche arrière refusée : le véhicule avance (craquement de boîte évité)', 'w'); flashHint('Arrêtez-vous avant R'); return; }
+  if (g > 0 && S.v < -0.3){ log('Rapport refusé : le véhicule recule', 'w'); flashHint('Arrêtez-vous d’abord'); return; }
   if (g > 0){
-    const wrNew = S.v / RW * 60 / TAU * RATIOS[g] * FINAL;
+    const wrNew = Math.abs(S.v) / RW * 60 / TAU * RATIOS[g] * FINAL;
     if (wrNew > 6500){ log(`Rétrogradage en ${g}e refusé : le moteur monterait à ${fmt(wrNew)} tr/min`, 'w'); flashHint(`${g}e refusée : surrégime !`); return; }
   }
   S.gear = g; S.shiftT = g ? 0.3 : 0; S.lock = false; S.lastShift = S.t;
-  log(g ? `Boîte manuelle : ${g}e engagée (embrayage piloté)` : 'Boîte manuelle : point mort');
+  log(g === -1 ? 'Boîte manuelle : marche arrière engagée' : g ? `Boîte manuelle : ${g}e engagée (embrayage piloté)` : 'Boîte manuelle : point mort');
   driveUI();
 }
 function setBox(b){
   if (b === S.box) return;
   S.box = b; S.lock = false;
   if (b === 'manu'){ S.gear = S.v > 1 && S.lever === 'D' ? S.gear : 0; S.lever = 'M'; log('Boîte manuelle 5 vitesses à embrayage piloté : vous choisissez les rapports'); }
-  else { S.lever = S.v > 0.4 ? 'N' : 'P'; S.gear = 1; log('Boîte automatique : levier ' + S.lever); }
+  else { S.lever = Math.abs(S.v) > 0.4 ? 'N' : 'P'; S.gear = 1; log('Boîte automatique : levier ' + S.lever); }
   driveUI();
 }
 $('#boxSeg').addEventListener('click', e => { const b = e.target.closest('button'); if (b) setBox(b.dataset.b); });
@@ -1391,7 +1515,7 @@ $('#manuSel').addEventListener('click', e => { const b = e.target.closest('butto
 let hintUntil = 0, hintTxt = '';
 function flashHint(t){ hintTxt = t; hintUntil = performance.now() + 1800; }
 function updateReadout(){
-  $('#rdSpeed').textContent = fmt(S.v * 3.6);
+  $('#rdSpeed').textContent = fmt(Math.abs(S.v) * 3.6);
   $('#rdRpm').textContent = fmt(S.rpm);
   $('#rdGear').textContent = S.key < 1 ? '—' : gearLabel();
   $('#revFill').style.width = clamp(S.rpm / 7000 * 100, 0, 100) + '%';
@@ -1401,7 +1525,7 @@ function updateReadout(){
   else if (S.box === 'manu' && S.running && S.gear > 0){
     if (S.rpm > 5600 && S.gear < 5){ t = '▲ Passez la ' + (S.gear + 1) + 'e'; c = 'up'; }
     else if (S.lock && S.rpm < 1300 && S.gear > 1){ t = '▼ Rétrogradez en ' + (S.gear - 1) + 'e'; c = 'dn'; }
-    else if (!S.lock && S.v < 3) t = 'Embrayage en patinage (démarrage)';
+    else if (!S.lock && Math.abs(S.v) < 3) t = 'Embrayage en patinage (démarrage)';
   } else if (S.box === 'manu' && S.running && S.gear === 0) t = 'Point mort : engagez la 1re';
   else if (S.box === 'auto' && S.running) t = S.lever === 'D' ? (S.shiftT > 0 ? 'Passage de rapport…' : S.lock ? 'Convertisseur verrouillé (lock-up)' : 'Convertisseur en glissement') : S.lever === 'P' ? 'Parking : roues bloquées' : 'Neutre';
   else if (!S.running && S.key >= 1) t = 'Maintenir « Démarrer » ou Espace';
@@ -1479,7 +1603,7 @@ function gauge(cv, val, max, o){
 
 const LAMPS = [
   {id:'mil', t:'Moteur', c:'a'}, {id:'epc', t:'EPC', c:'a'}, {id:'bat', t:'Charge', c:'r'}, {id:'oil', t:'Huile', c:'r'},
-  {id:'tmp', t:'T° eau', c:'r'}, {id:'com', t:'Défaut réseau', c:'a'}, {id:'fan', t:'GMV', c:'b'}, {id:'ac', t:'A/C', c:'g'},
+  {id:'tmp', t:'T° eau', c:'r'}, {id:'com', t:'Défaut réseau', c:'a'}, {id:'fan', t:'GMV', c:'b'}, {id:'ac', t:'A/C', c:'g'}, {id:'rev', t:'Recul', c:'b'},
 ];
 $('#lamps').innerHTML = LAMPS.map(l => `<span class="lamp ${l.c}" id="lp-${l.id}">${l.t}</span>`).join('');
 
@@ -1502,7 +1626,7 @@ function combRx(){
 
 const TILE_DEF = [
   {k:'Régime', f:() => [fmt(E.rpm), 'tr/min', E.sync ? 'synchronisé' : (S.rpm > 30 ? 'pas de synchro' : '')]},
-  {k:'Vitesse (CAN ABS)', f:() => [fmt(E.speed), 'km/h', inGearNow() ? `rapport ${S.gear}${S.lock ? (S.box === 'manu' ? ' · embrayé' : ' · lock-up') : ''}` : (S.box === 'manu' ? 'point mort' : 'levier ' + S.lever)]},
+  {k:'Vitesse (CAN ABS)', f:() => [fmt(E.speed), 'km/h', inGearNow() ? `rapport ${gearLabel()}${S.lock ? (S.box === 'manu' ? ' · embrayé' : ' · lock-up') : ''}` : (S.box === 'manu' ? 'point mort' : 'levier ' + S.lever)]},
   {k:'T° eau', f:() => [fmt(E.tCool), '°C', E.ectSubst ? 'substitution' : `${fmt(V.ect, 2)} V`], st:() => E.ectSubst ? 'crit' : E.tCool > 105 ? 'warn' : ''},
   {k:'T° air admission', f:() => [fmt(E.tAir), '°C', E.iatSubst ? 'substitution' : `${fmt(V.iat, 2)} V`], st:() => E.iatSubst ? 'crit' : ''},
   {k:'Pression collecteur', f:() => [fmt(E.map), 'kPa', E.mapSubst ? 'estimée (alpha-N)' : `${fmt(V.map, 2)} V`], st:() => E.mapSubst ? 'crit' : ''},
@@ -1561,7 +1685,7 @@ function updateDash(){
   const powered = S.key >= 1;
   gauge($('#gTach'), powered ? c.rpm / 1000 : 0, 7, { red:6.3, major:1, minor:0.5, lab:v => v, txt:powered && c.eng ? fmt(c.rpm) : '---', unit:'× 1000 tr/min' });
   gauge($('#gSpeed'), powered ? c.speed : 0, 220, { major:20, minor:10, lab:v => v, txt:powered && c.abs ? fmt(c.speed) : '---', unit:'km/h' });
-  $('#cGear').innerHTML = !powered ? '—' : c.gear == null ? '?' : S.box === 'manu' ? (c.gear ? c.gear : 'N') : S.lever !== 'D' ? S.lever : `D<small>${c.gear}</small>`;
+  $('#cGear').innerHTML = !powered ? '—' : c.gear == null ? '?' : c.gear === 15 ? 'R' : S.box === 'manu' ? (c.gear ? c.gear : 'N') : S.lever !== 'D' ? S.lever : `D<small>${c.gear}</small>`;
   $('#cTemp').textContent = powered && c.tCool != null ? fmt(c.tCool) + ' °C' : '—';
   $('#cTempBar').style.width = powered && c.tCool != null ? clamp((c.tCool - 40) / 80 * 100, 0, 100) + '%' : '0';
   $('#cTempBar').style.background = c.tCool > 110 ? COL.crit : COL.info;
@@ -1576,6 +1700,7 @@ function updateDash(){
     com: powered && (!c.eng || !c.abs || !c.bva && inGearNow()),
     fan: powered && E.fan > 0,
     ac: powered && E.comp,
+    rev: powered && inGearNow() && S.gear === -1,
   };
   // Test des voyants à la mise du contact (3 s) puis extinction si tout va bien
   const bulb = E.on && E.primeT < 3 && !S.running;
@@ -1986,7 +2111,7 @@ function decodeMsg(id){
   switch (id){
     case 0x110: return [`Régime ${fmt(w(0, 1) / 4)} tr/min`, `Pédale ${fmt(d[2] * 0.4)} %`, `Couple ${d[3] - 64} Nm`, `Papillon ${fmt(d[4] * 0.4, 1)} %`, `État 0b${d[5].toString(2).padStart(5, '0')}`, `Compteur ${d[6]}`, `Somme XOR 0x${hex(d[7])}`];
     case 0x120: return [`T° eau ${d[0] - 40} °C`, `T° air ${d[1] - 40} °C`, `Voyants MIL ${d[2] & 1} · EPC ${(d[2] >> 1) & 1} · T° ${(d[2] >> 2) & 1}`, `Conso ${fmt(w(3, 4) / 10, 1)} L/h`, `GMV ${d[5]}`];
-    case 0x130: return [`Rapport ${d[0]}`, `Levier ${['P', 'N', '?', 'D', '?', 'manuel'][d[1]]}`, `Lock-up ${d[2]}`, `Réduction couple ${d[3]} %`];
+    case 0x130: return [`Rapport ${d[0] === 15 ? 'R' : d[0]}`, `Levier ${['P', 'N', 'R', 'D', '?', 'manuel'][d[1]]}`, `Lock-up ${d[2]}`, `Réduction couple ${d[3]} %`];
     case 0x1A0: return [`Vitesse ${fmt(w(0, 1) / 100, 2)} km/h`, `Frein ${d[2]}`, `Compteur ${d[3]}`];
     case 0x220: return [`Pression HP ${fmt(d[0] / 10, 1)} bar`, `Demande compresseur ${d[1]}`, `Demande GMV ${d[2]} %`];
     case 0x2A0: return [`Clé ${['OFF', 'contact', 'démarreur'][d[0]]}`, `T° ext ${d[1] - 40} °C`, `Batterie ${fmt(d[2] / 10, 1)} V`, `Clim ${d[3]}`];
@@ -2376,7 +2501,8 @@ document.addEventListener('keydown', e => {
   if (e.key === 'ArrowUp'){ e.preventDefault(); DRV.kUp = true; }
   else if (e.key === 'ArrowDown'){ e.preventDefault(); DRV.kDn = true; }
   else if (e.key === 'ArrowRight' && !e.repeat){ e.preventDefault(); shiftTo(S.gear + 1); }
-  else if (e.key === 'ArrowLeft' && !e.repeat){ e.preventDefault(); shiftTo(S.gear - 1); }
+  else if (e.key === 'ArrowLeft' && !e.repeat){ e.preventDefault(); if (S.gear > 0) shiftTo(S.gear - 1); }
+  else if (e.key.toLowerCase() === 'r' && !e.repeat){ S.box === 'manu' ? shiftTo(-1) : setLever('R'); }
   else if (/^[0-5]$/.test(e.key) && S.box === 'manu') shiftTo(+e.key);
   else if (e.key.toLowerCase() === 'n'){ S.box === 'manu' ? shiftTo(0) : setLever('N'); }
   else if (e.key === ' ' && !e.repeat && tg !== 'BUTTON'){ e.preventDefault(); setKey(2); }
@@ -2396,7 +2522,7 @@ const ENG_T = {
   4:['','●','','●','','',[0,1,1]], 5:['','●','','','','●',[0,0,1]],
 };
 const lineP = () => S.box === 'auto' && S.rpm > 300 ? 4 + S.pedal * 0.1 + (S.shiftT > 0 ? 3 : 0) - (F.bvaAtf ? 1.5 : 0) : 0;
-const nOut = () => S.v / RW * 60 / TAU * FINAL;
+const nOut = () => Math.abs(S.v) / RW * 60 / TAU * FINAL;
 let bvaAng = { p:0, t:0, o:0, w:0 }, bvaLast = performance.now();
 function spokes(ctx, x, y, r, ang, col, k){
   ctx.strokeStyle = col; ctx.lineWidth = 3;
@@ -2439,7 +2565,7 @@ function drawBva(now){
     ctx.fillStyle = COL.dim; ctx.font = '500 11px "IBM Plex Sans", sans-serif';
     ctx.fillText('pompe', xC - 32, cy - 70); ctx.fillText('turbine', xC + 34, cy - 70);
   } else {
-    const gap = S.lock || S.shiftT <= 0 && S.v > 0.5 ? 2 : (S.shiftT > 0 || S.gear === 0 ? 14 : 6);
+    const gap = S.lock || S.shiftT <= 0 && Math.abs(S.v) > 0.5 ? 2 : (S.shiftT > 0 || S.gear === 0 ? 14 : 6);
     ctx.fillStyle = COL.accent; ctx.fillRect(xC - gap - 10, cy - 58, 10, 116);
     ctx.fillStyle = COL.ch2; ctx.fillRect(xC + gap, cy - 58, 10, 116);
     label(ctx, xC, cy + 90, 'Embrayage piloté', S.gear === 0 ? 'débrayé (point mort)' : S.shiftT > 0 ? 'débrayé (passage)' : S.lock ? 'embrayé' : 'patinage', COL.text);
@@ -2453,11 +2579,11 @@ function drawBva(now){
     ctx.strokeStyle = '#2f3f4d'; ctx.lineWidth = 2; spokes(ctx, px, py, 13, -bvaAng.t * 1.5, '#2f3f4d', 3);
   }
   ctx.fillStyle = COL.text; ctx.font = '700 22px "Barlow Condensed", sans-serif'; ctx.textAlign = 'center';
-  label(ctx, xG, cy + 90, manu ? 'Boîte manuelle' : 'Trains épicycloïdaux', inGearNow() ? `${S.gear}e · rapport ${fmt(RATIOS[S.gear], 2)}` : (manu ? 'point mort' : 'levier ' + S.lever), COL.text);
+  label(ctx, xG, cy + 90, manu ? 'Boîte manuelle' : 'Trains épicycloïdaux', inGearNow() ? (S.gear === -1 ? `marche arrière · ${fmt(RATIO_R, 2)}` : `${S.gear}e · rapport ${fmt(RATIOS[S.gear], 2)}`) : (manu ? 'point mort' : 'levier ' + S.lever), COL.text);
   // pont + roue
   ctx.beginPath(); ctx.arc(xW, cy, 44, 0, TAU); ctx.fillStyle = '#10171d'; ctx.fill(); ctx.strokeStyle = '#2a3845'; ctx.lineWidth = 10; ctx.stroke();
   spokes(ctx, xW, cy, 34, bvaAng.w, '#9aa9b5', 5);
-  label(ctx, xW, cy + 90, 'Roue', `${fmt(S.v * 3.6)} km/h`, COL.text);
+  label(ctx, xW, cy + 90, 'Roue', `${fmt(Math.abs(S.v) * 3.6)} km/h${S.v < -0.05 ? ' (recul)' : ''}`, COL.text);
   $('#bvaNote').textContent = manu ? 'Boîte manuelle à embrayage piloté sélectionnée' : `Vue ralentie ×60 · pression de ligne ${fmt(lineP(), 1)} bar`;
 }
 function updateBva(){
@@ -2468,13 +2594,13 @@ function updateBva(){
     ['Régime turbine', F.bvaTurb && !manu ? '—' : fmt(nt), 'tr/min', F.bvaTurb && !manu ? 'capteur sans signal' : 'arbre d’entrée de boîte'],
     ['Glissement', manu ? '—' : fmt(n > 50 ? (1 - sr) * 100 : 0), '%', S.lock ? 'lock-up fermé' : 'convertisseur ouvert'],
     ['Multiplication de couple', manu ? '×1,00' : '×' + fmt(inGearNow() && !S.lock ? bvaTR(sr) : 1, 2), '', 'réacteur sur roue libre'],
-    ['Rapport engagé', gearLabel(), '', inGearNow() ? `démultiplication totale ${fmt(RATIOS[S.gear] * FINAL, 2)}` : '—'],
+    ['Rapport engagé', gearLabel(), '', inGearNow() ? `démultiplication totale ${fmt(gearRatio(S.gear) * FINAL, 2)}` : '—'],
     ['Régime de sortie', fmt(no), 'tr/min', 'vers le différentiel'],
     ['T° huile de boîte', fmt(S.atf), '°C', S.atf > 120 ? 'surchauffe !' : S.atf < 20 ? 'lock-up interdit à froid' : 'normale 70 à 100 °C'],
     ['Pression de ligne', fmt(lineP(), 1), 'bar', 'régulée par EV proportionnelle'],
   ];
   $('#bvaTiles').innerHTML = T.map(x => `<div class="tile ${x[0].startsWith('T°') && S.atf > 120 ? 'crit' : ''}"><span class="k">${x[0]}</span><span class="v">${x[1]}<small>${x[2]}</small></span><span class="s">${x[3]}</span></div>`).join('');
-  const cur = manu ? null : S.lever === 'D' ? String(S.gear) : 'PN';
+  const cur = manu ? null : S.lever === 'D' ? String(S.gear) : S.lever === 'R' ? 'R' : 'PN';
   const rows = [['R', 'R'], ['PN', 'P / N'], ['1', '1re'], ['2', '2e'], ['3', '3e'], ['4', '4e'], ['5', '5e']];
   $('#tEng').innerHTML = `<thead><tr><th>Rapport</th><th>C1</th><th>C2</th><th>C3</th><th>B1</th><th>B2</th><th>B3</th><th>EV1</th><th>EV2</th><th>EV3</th><th>Rapport</th></tr></thead><tbody>${rows.map(([k, l]) => {
     const r = ENG_T[k]; const g = +k;
@@ -2490,7 +2616,7 @@ function updateBva(){
     ['Électrovanne de pression de ligne', 'Proportionnelle (courant)', manu ? '—' : fmt(200 + lineP() * 80) + ' mA', 'Plus de couple moteur = plus de pression pour que les disques ne patinent pas.'],
     ['Électrovanne de lock-up', 'RCO', manu ? '—' : (S.lock ? '100 %' : '0 %'), 'Ferme l’embrayage de pontage : plus de glissement, consommation réduite.'],
     ['Données reçues par le CAN', 'Trames 0x110 et 0x1A0', delivered(0x110, 'BVA') ? `${fmt(E.rpm)} tr/min · pédale ${fmt(E.pedal)} %` : 'trame moteur absente', 'Régime, couple et pédale du calculateur moteur ; vitesse de l’ABS.'],
-    ['Données émises sur le CAN', 'Trame 0x130', `rapport ${S.gear} · réduction couple ${S.shiftT > 0 ? '30 %' : '0 %'}`, 'Rapport au combiné, demande de réduction de couple au moteur pendant les passages.'],
+    ['Données émises sur le CAN', 'Trame 0x130', `rapport ${gearLabel()} · réduction couple ${S.shiftT > 0 ? '30 %' : '0 %'}`, 'Rapport au combiné, demande de réduction de couple au moteur pendant les passages.'],
   ];
   $('#tBvaIo tbody').innerHTML = IO_B.map(r => `<tr><td>${r[0]}</td><td>${r[1]}</td><td class="n">${r[2]}</td><td style="font-size:12.5px">${r[3]}</td></tr>`).join('');
   drawShiftMap();
@@ -2537,6 +2663,266 @@ $('#bvaCours').innerHTML = BVA_COURS.map(c => `<article class="fiche"><span clas
 PEDA.COURS.push(...BVA_COURS);
 
 /* =====================================================================
+   MULTIMÈTRE
+   ===================================================================== */
+const INF = Infinity;
+const avgInj = (cyl) => {
+  if (!E.on) return 0;
+  if (cyl === 1 && F.inj2) return 0;
+  if (!E.injOn || E.cut[cyl] || S.rpm < 30) return S.vbat;
+  const duty = clamp(E.ti / (120000 / S.rpm), 0, 1);
+  return S.vbat * (1 - duty) + 0.35 * duty + 0.4 * duty * 3;
+};
+const canV = hi => { if (S.key < 1 || F.canShort) return 2.5; const l = 0.05; return hi ? 2.58 + l : 2.42 - l; };
+const canR = () => { const t = (F.canHcut ? 0 : 1) + (F.canTerm ? 0 : 1); return F.canShort ? 0.2 : t === 2 ? 60 : t === 1 ? 120 : INF; };
+const DMM = [
+  // mode, libellé, pointes, valeur(), référence, commentaire
+  ['V', 'Batterie', '+ batterie / masse', () => S.vbat, '12,4 à 12,7 V au repos · 13,8 à 14,6 V moteur tournant', 'Sous 12,2 V au repos, la batterie est déchargée. Sous 9,5 V au démarreur, elle est usée.'],
+  ['V', 'Alimentation +5 V capteurs', 'Calculateur C1-30 / masse capteurs', () => E.on ? 5.0 : 0, '5,00 V ± 0,1 contact mis', 'Référence commune aux capteurs MAP, papillon, pédale. Si elle manque, plusieurs capteurs tombent en même temps.'],
+  ['V', 'Sonde T° eau : signal', 'C1-27 / C1-45', () => V.ect, '≈ 2,5 V à 20 °C · ≈ 0,5 V à 90 °C', '5 V : circuit ouvert (fil coupé ou sonde débranchée). 0 V : court-circuit à la masse.'],
+  ['V', 'Sonde T° air : signal', 'C1-26 / C1-45', () => V.iat, '≈ 2,5 V à 20 °C', '5 V : circuit ouvert.'],
+  ['V', 'Capteur pression collecteur : signal', 'C1-29 / masse capteurs', () => V.map, '≈ 4,7 V moteur arrêté · 1,3 à 1,7 V au ralenti', '0 V : capteur débranché ou alimentation absente.'],
+  ['V', 'Papillon : piste 1', 'C2-12 / masse', () => V.tps1, '0,5 V fermé → 4,5 V ouvert', 'Additionner avec la piste 2 : le total doit faire 5 V.'],
+  ['V', 'Papillon : piste 2', 'C2-13 / masse', () => V.tps2, '4,5 V fermé → 0,5 V ouvert', 'Additionner avec la piste 1 : le total doit faire 5 V.'],
+  ['V', 'Pédale : piste 1', 'C2-30 / masse', () => V.app1, '0,75 V pied levé → 3,85 V à fond', ''],
+  ['V', 'Pédale : piste 2', 'C2-31 / masse', () => V.app2, 'moitié de la piste 1', '0 V : piste coupée ou masse absente.'],
+  ['V', 'Sonde lambda amont : signal', 'C1-50 / C1-51', () => S.o2v, 'oscille 0,1 ↔ 0,8 V (moyenne ≈ 0,45 V)', 'Le voltmètre montre une moyenne qui bouge : l’oscilloscope montre les basculements.'],
+  ['V', 'Sonde lambda aval : signal', 'C1-52 / C1-53', () => S.o2dn, '0,6 à 0,7 V stable', ''],
+  ['V', 'Injecteur 1 : alimentation', 'connecteur injecteur, fil + / masse', () => E.on ? S.vbat - 0.1 : 0, 'tension batterie contact mis', 'Fournie par le relais principal. Absente : fusible ou relais.'],
+  ['V', 'Injecteur 1 : commande (moyenne)', 'C1-60 / masse', () => avgInj(0), 'un peu sous la tension batterie', 'Moyenne d’un signal qui commute : plus Ti est long, plus la moyenne baisse.'],
+  ['V', 'Injecteur 2 : commande (moyenne)', 'C1-61 / masse', () => avgInj(1), 'un peu sous la tension batterie', '0 V : pas de courant possible, bobinage ou fil coupé.'],
+  ['V', 'Relais de pompe : sortie vers la pompe', 'borne 87 / masse', () => E.pump && !F.pumpRelay ? S.vbat - 0.3 : 0, 'tension batterie pendant l’amorçage (2 s) et moteur tournant', 'Commande présente mais pas de tension en sortie : relais HS.'],
+  ['V', 'Réseau CAN : CAN-H / masse', 'prise diag broche 6 / 4', () => canV(true), '≈ 2,6 V contact mis', 'Moyenne entre 2,5 V (récessif) et 3,5 V (dominant).'],
+  ['V', 'Réseau CAN : CAN-L / masse', 'prise diag broche 14 / 4', () => canV(false), '≈ 2,4 V contact mis', 'CAN-H et CAN-L égaux à 2,5 V : court-circuit entre les deux fils.'],
+  ['VAC', 'Capteur régime : tension alternative', 'C1-18 / C1-33', () => V.ckp / Math.SQRT2, '> 0,2 V~ au démarreur, augmente avec le régime', '0 V~ au démarreur : capteur, entrefer ou fil en cause.'],
+  ['VAC', 'Capteur de cliquetis', 'C1-14 / C1-15', () => V.knock / Math.SQRT2 * 0.6, 'quelques dizaines de mV, augmente avec le régime', ''],
+  ['R', 'Sonde T° eau (composant seul)', 'bornes de la sonde', () => ntcR(S.tCool), '≈ 2 500 Ω à 20 °C · ≈ 260 Ω à 90 °C', 'Comparer à la courbe constructeur à la température réelle.'],
+  ['R', 'Faisceau T° eau : continuité du fil signal', 'C1-27 ↔ connecteur sonde', () => F.ectOpen ? INF : 0.3, '< 1 Ω', 'Infini : fil coupé.'],
+  ['R', 'Faisceau T° eau : isolement / masse', 'C1-27 ↔ masse', () => F.ectShort ? 0.2 : INF, 'infini', '≈ 0 Ω : le fil touche la masse (court-circuit).'],
+  ['R', 'Sonde T° air (composant seul)', 'bornes de la sonde', () => F.iatOpen ? INF : ntcR(S.tAir), '≈ 2 500 Ω à 20 °C', ''],
+  ['R', 'Capteur régime : bobinage', 'bornes du capteur', () => F.crank ? INF : 680, '200 à 1 000 Ω', 'Infini : bobinage coupé.'],
+  ['R', 'Injecteur 1', 'bornes de l’injecteur', () => 14.5, '12 à 16 Ω', ''],
+  ['R', 'Injecteur 2', 'bornes de l’injecteur', () => F.inj2 ? INF : 14.6, '12 à 16 Ω', 'Infini : bobinage coupé.'],
+  ['R', 'Bobine 1 : primaire', 'bornes primaire', () => 0.72, '0,5 à 1 Ω', ''],
+  ['R', 'Bobine 3 : primaire', 'bornes primaire', () => F.coil3 ? INF : 0.71, '0,5 à 1 Ω', 'Infini : primaire coupé.'],
+  ['R', 'Chauffage sonde lambda', 'fils blancs de la sonde', () => F.o2heat ? INF : 6.2, '3 à 15 Ω à froid', ''],
+  ['R', 'Relais de pompe : bobine', 'bornes 85 / 86', () => 78, '60 à 100 Ω', 'La bobine peut être bonne et le contact brûlé : contrôler aussi en tension.'],
+  ['R', 'Moteur de papillon', 'C2-01 / C2-02', () => 2.4, '1 à 5 Ω', ''],
+  ['R', 'Électrovanne canister', 'bornes', () => 26, '20 à 30 Ω', ''],
+  ['R', 'Capteur de cliquetis : continuité faisceau', 'C1-14 ↔ capteur', () => F.knockS ? INF : 0.4, '< 1 Ω', ''],
+  ['R', 'Réseau CAN : entre CAN-H et CAN-L', 'prise diag broches 6 / 14', canR, '60 Ω', '120 Ω : une terminaison absente ou une ligne coupée. 0 Ω : court-circuit.'],
+];
+let dmmMode = 'V';
+function dmmFill(){
+  const pts = DMM.map((d, i) => [d, i]).filter(([d]) => d[0] === dmmMode);
+  $('#dmmPt').innerHTML = pts.map(([d, i]) => `<option value="${i}">${d[1]}</option>`).join('');
+}
+$('#dmmSeg').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; dmmMode = b.dataset.m; [...$('#dmmSeg').children].forEach(x => x.classList.toggle('on', x === b)); dmmFill(); updateDmm(); });
+$('#dmmPt').addEventListener('change', updateDmm);
+function updateDmm(){
+  const d = DMM[+$('#dmmPt').value]; if (!d) return;
+  let txt, unit = { V:'V', VAC:'V~', R:'Ω' }[d[0]], warn = '';
+  if (d[0] === 'R' && S.key >= 1){ txt = '----'; warn = 'Coupez le contact : une mesure de résistance sous tension est fausse et peut abîmer l’appareil.'; }
+  else {
+    const v = d[3]();
+    if (v === INF) txt = 'O.L';
+    else if (d[0] === 'R'){ if (v >= 1000){ txt = fmt(v / 1000, 2); unit = 'kΩ'; } else txt = fmt(v, v < 10 ? 2 : 1); }
+    else txt = fmt(v, v < 1 ? 3 : 2);
+  }
+  $('#dmmVal').textContent = txt; $('#dmmUnit').textContent = unit; $('#dmmMode').textContent = { V:'V ⎓', VAC:'V ~', R:'Ω' }[d[0]];
+  $('#dmmProbe').textContent = d[2];
+  $('#dmmInfo').innerHTML = `<div class="calc"><div class="ln"><span>Point de mesure</span><b>${d[2]}</b></div><div class="ln"><span>Valeur de référence</span><b>${d[4]}</b></div></div>${d[5] ? `<p class="explain" style="margin-top:8px">${d[5]}</p>` : ''}${warn ? `<div class="verdict no" style="margin-top:8px">${warn}</div>` : ''}${txt === 'O.L' ? '<p class="note" style="margin-top:6px">O.L = hors calibre : résistance infinie, circuit ouvert.</p>' : ''}`;
+}
+dmmFill();
+
+/* =====================================================================
+   ENREGISTREUR
+   ===================================================================== */
+const RP = [
+  ['rpm', 'Régime', 'tr/min', 0, 7000, () => S.rpm, 0], ['spd', 'Vitesse', 'km/h', 0, 200, () => Math.abs(S.v) * 3.6, 0],
+  ['gear', 'Rapport', '', -1, 5, () => inGearNow() ? S.gear : 0, 0], ['ped', 'Pédale', '%', 0, 100, () => S.pedal, 0],
+  ['thr', 'Papillon', '%', 0, 100, () => S.thr, 1], ['map', 'Pression collecteur', 'kPa', 0, 105, () => E.map, 0],
+  ['ti', 'Temps d’injection', 'ms', 0, 12, () => E.injOn ? E.ti : 0, 2], ['adv', 'Avance', '°', -10, 45, () => E.adv, 1],
+  ['lam', 'Lambda', '', 0.7, 1.4, () => Math.min(1.5, S.lamM), 3], ['o2', 'Sonde lambda amont', 'V', 0, 1, () => S.o2v, 3],
+  ['trim', 'Correction lambda', '%', -25, 25, () => (E.stft + E.ltft) * 100, 1], ['ect', 'T° eau', '°C', -20, 120, () => S.tCool, 1],
+  ['atf', 'T° huile de boîte', '°C', -20, 140, () => S.atf, 1], ['bat', 'Batterie', 'V', 8, 15, () => S.vbat, 2],
+  ['tq', 'Couple moteur', 'Nm', -20, 160, () => S.tind, 0], ['cons', 'Consommation', 'L/h', 0, 40, () => S.fuelGs * 3600 / 745, 2],
+  ['co', 'CO échappement', '%', 0, 5, () => S.gas.co, 2], ['hc', 'HC échappement', 'ppm', 0, 1500, () => S.gas.hc, 0],
+  ['nox', 'NOx échappement', 'ppm', 0, 2500, () => S.gas.nox, 0], ['cat', 'T° catalyseur', '°C', 0, 900, () => S.catT, 0],
+];
+const RN = 1800; const REC = { t:new Float64Array(RN) }; RP.forEach(r => REC[r[0]] = new Float32Array(RN));
+let rIdx = 0, rCount = 0, recRun = true, recHover = null, recFrozenT = 0;
+function recRecord(){ const i = rIdx; REC.t[i] = S.t; RP.forEach(r => REC[r[0]][i] = r[5]()); rIdx = (rIdx + 1) % RN; rCount = Math.min(rCount + 1, RN); }
+const REC_COL = [null, null, '#ee7bc0', '#8be26b'];
+['rc0', 'rc1', 'rc2', 'rc3'].forEach((id, k) => { $('#' + id).innerHTML = (k > 1 ? '<option value="">— aucune —</option>' : '') + RP.map(r => `<option value="${r[0]}">${r[1]}</option>`).join(''); });
+$('#rc0').value = 'rpm'; $('#rc1').value = 'spd'; $('#rc2').value = 'ped'; $('#rc3').value = 'lam';
+$('#recRun').onclick = () => { recRun = !recRun; recFrozenT = S.t; $('#recRun').textContent = recRun ? 'Figer' : 'Reprendre'; };
+$('#recCv').addEventListener('pointermove', e => { const r = e.target.getBoundingClientRect(); recHover = (e.clientX - r.left) / r.width; });
+$('#recCv').addEventListener('pointerleave', () => { recHover = null; });
+function recSel(){ return ['rc0', 'rc1', 'rc2', 'rc3'].map(id => $('#' + id).value).map((k, i) => [RP.find(r => r[0] === k), i]).filter(x => x[0]); }
+function recWindow(){ const W = +$('#recWin').value; const tEnd = recRun ? S.t : recFrozenT; return [tEnd - W, tEnd, W]; }
+function recSamples(t0, t1){ const out = []; for (let j = 0; j < rCount; j++){ const i = mod(rIdx - rCount + j, RN); const t = REC.t[i]; if (t >= t0 && t <= t1) out.push(i); } return out; }
+function drawRec(){
+  const cv = $('#recCv'); const { ctx, w, h } = fitCanvas(cv);
+  ctx.fillStyle = '#070b0e'; ctx.fillRect(0, 0, w, h);
+  const sel = recSel(); if (!sel.length) return;
+  const [t0, t1, W] = recWindow(); const idx = recSamples(t0, t1);
+  const lh = h / sel.length, L = 8, R = 150;
+  const X = t => L + (t - t0) / W * (w - L - R);
+  const colOf = k => REC_COL[k] || (k === 0 ? COL.ch1 : COL.ch2);
+  sel.forEach(([r, k], li) => {
+    const y0 = li * lh, col = colOf(k);
+    ctx.strokeStyle = '#16222b'; ctx.lineWidth = 1;
+    for (let g = 1; g < 4; g++){ ctx.beginPath(); ctx.moveTo(L, y0 + g * lh / 4 + .5); ctx.lineTo(w - R, y0 + g * lh / 4 + .5); ctx.stroke(); }
+    ctx.strokeStyle = '#223441'; ctx.beginPath(); ctx.moveTo(0, y0 + lh - .5); ctx.lineTo(w, y0 + lh - .5); ctx.stroke();
+    const Y = v => y0 + 8 + (1 - clamp((v - r[3]) / (r[4] - r[3]), 0, 1)) * (lh - 16);
+    ctx.strokeStyle = col; ctx.lineWidth = 1.6; ctx.beginPath();
+    idx.forEach((i, n) => { const x = X(REC.t[i]), y = Y(REC[r[0]][i]); n ? ctx.lineTo(x, y) : ctx.moveTo(x, y); }); ctx.stroke();
+    const last = idx.length ? REC[r[0]][idx[idx.length - 1]] : 0;
+    ctx.fillStyle = col; ctx.font = '600 13px "Barlow Condensed", sans-serif'; ctx.textAlign = 'left';
+    ctx.fillText(r[1].toUpperCase(), w - R + 10, y0 + 18);
+    ctx.font = '500 18px "IBM Plex Mono", monospace'; ctx.fillStyle = COL.text;
+    ctx.fillText(`${fmt(last, r[6])} ${r[2]}`, w - R + 10, y0 + 40);
+    ctx.font = '500 10px "IBM Plex Mono", monospace'; ctx.fillStyle = COL.dim;
+    ctx.fillText(`${fmt(r[3], Math.min(r[6], 1))} … ${fmt(r[4], Math.min(r[6], 1))} ${r[2]}`, w - R + 10, y0 + 56);
+  });
+  ctx.fillStyle = COL.dim; ctx.font = '500 10px "IBM Plex Mono", monospace'; ctx.textAlign = 'left';
+  ctx.fillText(`−${W} s`, L + 2, h - 4); ctx.textAlign = 'right'; ctx.fillText(recRun ? 'maintenant' : 'figé', w - R - 4, h - 4);
+  if (recHover != null && idx.length){
+    const x = clamp(recHover * w, L, w - R); const t = t0 + (x - L) / (w - L - R) * W;
+    let best = idx[0]; for (const i of idx) if (Math.abs(REC.t[i] - t) < Math.abs(REC.t[best] - t)) best = i;
+    ctx.strokeStyle = 'rgba(255,255,255,.5)'; ctx.beginPath(); ctx.moveTo(x + .5, 0); ctx.lineTo(x + .5, h); ctx.stroke();
+    sel.forEach(([r, k], li) => {
+      ctx.fillStyle = colOf(k); ctx.font = '600 12px "IBM Plex Mono", monospace'; ctx.textAlign = x > (w - R) / 2 ? 'right' : 'left';
+      ctx.fillText(`${fmt(REC[r[0]][best], r[6])} ${r[2]}`, x + (x > (w - R) / 2 ? -6 : 6), li * lh + 22);
+    });
+    ctx.fillStyle = COL.muted; ctx.textAlign = 'center'; ctx.fillText(`${fmt(REC.t[best] - t1, 1)} s`, x, h - 16);
+  }
+}
+function recCsv(){
+  const sel = recSel().map(x => x[0]); const [t0, t1] = recWindow(); const idx = recSamples(t0, t1);
+  const head = ['temps_s', ...sel.map(r => `${r[1]}${r[2] ? ' (' + r[2] + ')' : ''}`)].join(';');
+  return head + '\n' + idx.map(i => [fmt(REC.t[i] - t1, 2), ...sel.map(r => fmt(REC[r[0]][i], r[6] + 1))].join(';')).join('\n');
+}
+$('#recCopy').onclick = () => {
+  const csv = recCsv();
+  const done = ok => { $('#recNote').textContent = ok ? `CSV copié (${csv.split('\n').length - 1} lignes). Collez-le dans un tableur.` : 'Copie refusée par le navigateur : utilisez « Télécharger CSV ».'; };
+  try { navigator.clipboard.writeText(csv).then(() => done(true), () => done(false)); } catch (e) { done(false); }
+};
+$('#recDl').onclick = () => {
+  const blob = new Blob(['﻿' + recCsv()], { type:'text/csv;charset=utf-8' });
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'simmoteur-enregistrement.csv';
+  document.body.appendChild(a); a.click(); a.remove();
+  $('#recNote').textContent = 'Téléchargement lancé. S’il ne se passe rien (page en ligne), utilisez « Copier en CSV » ou ouvrez le fichier SimMoteur-Pro.html en local.';
+};
+
+/* =====================================================================
+   ANALYSE DES GAZ ET CONTRÔLE TECHNIQUE
+   ===================================================================== */
+const CT_LIM = { coIdle:0.3, coFast:0.2, lamLo:0.97, lamHi:1.03 };
+let CT = { step:0, acc:0, sum:{}, n:0, res:{}, lastT:0 };
+function ctReset(){ CT = { step:0, acc:0, sum:{}, n:0, res:{}, lastT:S.t }; renderCT(); }
+function ctStart(){ CT = { step:1, acc:0, sum:{}, n:0, res:{}, lastT:S.t }; log('Test pollution : début du contrôle', 'i'); renderCT(); }
+function ctTick(){
+  if (CT.step === 0 || CT.step === 4){ if (CT.auto){ CT.auto = false; setHold(0); } return; }
+  const dt = S.t - CT.lastT; CT.lastT = S.t;
+  if (CT.auto && CT.step === 3) setHold(Math.round(clamp(DRV.hold + (2700 - S.rpm) * 0.004, 0, 60)));
+  const neutral = S.box === 'auto' ? (S.lever === 'P' || S.lever === 'N') : S.gear === 0;
+  if (CT.step === 1){ if (S.running && S.tCool >= 80 && neutral) { CT.step = 2; CT.acc = 0; CT.sum = {}; CT.n = 0; } }
+  else if (CT.step === 2 || CT.step === 3){
+    const ok = S.running && neutral && (CT.step === 2 ? S.rpm < 1000 && S.pedal < 2 : S.rpm > 2300 && S.rpm < 3100);
+    if (!ok){ CT.acc = 0; CT.sum = {}; CT.n = 0; }
+    else {
+      CT.acc += dt; CT.n++;
+      const lam = gasLambda();
+      [['co', S.gas.co], ['hc', S.gas.hc], ['co2', S.gas.co2], ['o2', S.gas.o2], ['lam', lam], ['rpm', S.rpm]].forEach(([k, v]) => CT.sum[k] = (CT.sum[k] || 0) + v);
+      if (CT.acc >= 10){
+        const avg = {}; for (const k in CT.sum) avg[k] = CT.sum[k] / CT.n;
+        CT.res[CT.step === 2 ? 'idle' : 'fast'] = avg;
+        if (CT.step === 2){ CT.step = 3; CT.acc = 0; CT.sum = {}; CT.n = 0; }
+        else if (CT.auto){ CT.auto = false; setHold(0); }
+        else { CT.step = 4; const r = ctVerdict(); log(`Test pollution terminé : ${r.ok ? 'favorable' : 'défavorable (contre-visite)'}`, r.ok ? 'i' : 'c'); }
+      }
+    }
+  }
+}
+function ctVerdict(){
+  const i = CT.res.idle, f = CT.res.fast;
+  const rows = [
+    ['CO au ralenti', `${fmt(i.co, 2)} %`, `≤ ${fmt(CT_LIM.coIdle, 1)} %`, i.co <= CT_LIM.coIdle],
+    ['CO au ralenti accéléré', `${fmt(f.co, 2)} %`, `≤ ${fmt(CT_LIM.coFast, 1)} %`, f.co <= CT_LIM.coFast],
+    ['Lambda au ralenti accéléré', fmt(f.lam, 3), `${fmt(CT_LIM.lamLo, 2)} à ${fmt(CT_LIM.lamHi, 2)}`, f.lam >= CT_LIM.lamLo && f.lam <= CT_LIM.lamHi],
+  ];
+  return { rows, ok:rows.every(r => r[3]) };
+}
+function gasLambda(){
+  // Formule simplifiée de Brettschneider (essence, sans NOx ni eau détaillés)
+  const { co, co2, hc, o2 } = S.gas;
+  if (co2 < 1) return 9.99;
+  const hcp = hc * 1e-4 * 6;
+  return clamp((co2 + co / 2 + o2 + (1.7261 / 4 * 3.5 / (3.5 + co / co2) - 0.0088) * (co2 + co)) / ((1 + 1.7261 / 4 - 0.0088) * (co2 + co + hcp)), 0.5, 9.99);
+}
+function renderCT(){
+  const st = CT.step;
+  const steps = [
+    ['Conditions', 'Moteur chaud (≥ 80 °C), levier en P ou N, sonde dans l’échappement.', st === 1 ? (S.tCool < 80 ? `T° eau ${fmt(S.tCool)} °C : laissez chauffer (vitesse ×20 possible)` : 'Passez en P ou N') : ''],
+    ['Ralenti', 'Pied levé. Mesure pendant 10 s.', st === 2 ? `${fmt(CT.acc, 1)} / 10 s` : CT.res.idle ? `CO ${fmt(CT.res.idle.co, 2)} %` : ''],
+    ['Ralenti accéléré', 'Tenez entre 2 500 et 3 000 tr/min pendant 10 s (pédale, cale-pied ou bouton « Tenir 2 700 tr/min »).', st === 3 ? `${fmt(CT.acc, 1)} / 10 s · ${fmt(S.rpm)} tr/min` : CT.res.fast ? `CO ${fmt(CT.res.fast.co, 2)} % · λ ${fmt(CT.res.fast.lam, 3)}` : ''],
+  ];
+  let h = `<ol class="steps">${steps.map((x, k) => `<li class="${st === k + 1 ? 'cur' : st > k + 1 ? 'done' : ''}"><i>${st > k + 1 ? '✓' : k + 1}</i><span><b>${x[0]}.</b> ${x[1]}</span><span class="note">${x[2]}</span></li>`).join('')}</ol>`;
+  if (st === 4){
+    const v = ctVerdict();
+    h += `<table class="t"><thead><tr><th>Mesure</th><th>Relevé</th><th>Limite</th><th></th></tr></thead><tbody>${v.rows.map(r => `<tr><td>${r[0]}</td><td class="n">${r[1]}</td><td class="n">${r[2]}</td><td><span class="st ${r[3] ? 'ok' : 'crit'}">${r[3] ? 'OK' : 'hors limite'}</span></td></tr>`).join('')}</tbody></table>
+      <div class="verdict ${v.ok ? 'ok' : 'no'}" style="margin-top:10px"><b>${v.ok ? 'Favorable.' : 'Défavorable : contre-visite.'}</b> ${v.ok ? 'Émissions conformes.' : 'Cherchez la cause : richesse (CO), ratés (HC + O₂), régulation lambda, catalyseur.'}</div>`;
+  }
+  if ($('#ctBox').innerHTML !== h) $('#ctBox').innerHTML = h;
+  $('#ctGo').textContent = st === 0 ? 'Commencer le test' : 'Recommencer';
+  $('#ctStop').hidden = st === 0;
+  $('#ctHold').hidden = st !== 3; $('#ctHold').textContent = CT.auto ? 'Je reprends la main' : 'Tenir 2 700 tr/min pour moi';
+}
+$('#ctGo').onclick = ctStart; $('#ctStop').onclick = () => { if (CT.auto) setHold(0); ctReset(); };
+$('#ctHold').onclick = () => { CT.auto = !CT.auto; if (!CT.auto) setHold(0); else setHold(20); renderCT(); };
+const GAS_DEF = [
+  ['co', 'CO', '%vol', 2, 'Monoxyde de carbone : manque d’oxygène, mélange riche'],
+  ['co2', 'CO₂', '%vol', 1, 'Dioxyde de carbone : combustion complète, ≈ 15 % à λ = 1'],
+  ['hc', 'HC', 'ppm', 0, 'Hydrocarbures imbrûlés : ratés, mélange très pauvre, froid'],
+  ['o2', 'O₂', '%vol', 2, 'Oxygène non consommé : mélange pauvre, ratés, prise d’air'],
+  ['nox', 'NOx', 'ppm', 0, 'Oxydes d’azote : combustion très chaude, léger excès d’air'],
+];
+function updateGas(){
+  const g = S.gas;
+  $('#gasLcd').innerHTML = GAS_DEF.map(d => `<div class="gas"><span class="k">${d[1]}</span><span class="v">${fmt(g[d[0]], d[3])}<small>${d[2]}</small></span><span class="s">${d[4]}</span></div>`).join('') +
+    `<div class="gas"><span class="k">λ calculé</span><span class="v" style="color:var(--accent)">${fmt(gasLambda(), 3)}</span><span class="s">Calculé par l’analyseur à partir des gaz</span></div>`;
+  const e = S.eff, r = S.raw;
+  $('#catNote').textContent = `${fmt(S.catT)} °C · ${S.catT > 300 ? 'amorcé' : 'froid : pas encore actif (amorçage vers 300 °C)'}`;
+  const rowsC = [['CO', 'co', '%', 2], ['HC', 'hc', 'ppm', 0], ['NOx', 'nox', 'ppm', 0]];
+  $('#catBox').innerHTML = `<table class="t"><thead><tr><th>Polluant</th><th>Avant catalyseur</th><th>Après</th><th style="width:34%">Conversion</th></tr></thead><tbody>${rowsC.map(([l, k, u, d]) => `<tr><td>${l}</td><td class="n">${fmt(r[k], d)} ${u}</td><td class="n">${fmt(g[k], d)} ${u}</td><td><div class="bar"><i style="width:${e[k] * 100}%;background:${e[k] > 0.8 ? COL.ok : e[k] > 0.4 ? COL.warn : COL.crit}"></i></div><span class="note">${fmt(e[k] * 100)} %</span></td></tr>`).join('')}</tbody></table>`;
+  drawWindow(); renderCT();
+}
+function drawWindow(){
+  const cv = $('#winCv'); const { ctx, w, h } = fitCanvas(cv); ctx.clearRect(0, 0, w, h);
+  const L = 36, B = 26, T = 10, R = 10, pw = w - L - R, ph = h - T - B;
+  const X = l => L + (l - 0.94) / 0.12 * pw, Y = e => T + ph - e * ph;
+  ctx.fillStyle = 'rgba(70,194,138,.12)'; ctx.fillRect(X(0.99), T, X(1.01) - X(0.99), ph);
+  ctx.strokeStyle = '#1f2c37'; for (let e = 0; e <= 1; e += 0.25){ ctx.beginPath(); ctx.moveTo(L, Y(e) + .5); ctx.lineTo(L + pw, Y(e) + .5); ctx.stroke(); }
+  const curves = [['CO', COL.accent, l => l >= 0.995 ? 0.98 : clamp(0.98 - (0.995 - l) * 8, 0.1, 0.98)], ['HC', COL.ch2, l => l >= 0.995 ? 0.96 : clamp(0.96 - (0.995 - l) * 6, 0.1, 0.96)], ['NOx', '#ee7bc0', l => l <= 1.003 ? 0.97 : clamp(0.97 - (l - 1.003) * 30, 0, 0.97)]];
+  curves.forEach(([n, c, f], k) => { ctx.strokeStyle = c; ctx.lineWidth = 2; ctx.beginPath(); for (let l = 0.94; l <= 1.0601; l += 0.002){ const x = X(l), y = Y(f(l)); l === 0.94 ? ctx.moveTo(x, y) : ctx.lineTo(x, y); } ctx.stroke(); ctx.fillStyle = c; ctx.font = '600 12px "IBM Plex Mono", monospace'; ctx.textAlign = 'left'; ctx.fillText(n, L + 6 + k * 44, T + 14); });
+  ctx.fillStyle = COL.muted; ctx.font = '500 11px "IBM Plex Mono", monospace'; ctx.textAlign = 'center';
+  [0.94, 0.97, 1.0, 1.03, 1.06].forEach(l => ctx.fillText(fmt(l, 2), X(l), h - 8));
+  ctx.textAlign = 'right'; [0, 50, 100].forEach(e => ctx.fillText(e + '%', L - 4, Y(e / 100) + 4));
+  ctx.fillStyle = COL.ok; ctx.textAlign = 'center'; ctx.fillText('fenêtre λ', X(1), T + ph - 6);
+  if (S.running){ const l = clamp(S.lamM, 0.94, 1.06); ctx.strokeStyle = COL.ch1; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(X(l), T); ctx.lineTo(X(l), T + ph); ctx.stroke(); }
+}
+const GAS_COURS = [
+  {cat:'Dépollution', titre:'Ce que disent les gaz', pts:['CO élevé, O₂ bas : mélange riche (injecteur qui fuit, pression d’essence trop haute, sonde de température qui lit froid).', 'HC et O₂ élevés ensemble, CO bas : ratés d’allumage. L’air et l’essence du cylindre qui ne brûle pas passent tels quels.', 'O₂ élevé, CO bas, HC normal : mélange pauvre ou prise d’air à l’échappement (qui fausse aussi la sonde lambda).', 'CO₂ bas : combustion médiocre ou dilution par une fuite d’échappement.']},
+  {cat:'Dépollution', titre:'La fenêtre catalytique', pts:['Le catalyseur trois voies oxyde CO et HC (il lui faut de l’oxygène) et réduit les NOx (il faut qu’il manque d’oxygène).', 'Les trois réactions ne sont efficaces en même temps que dans une fenêtre très étroite autour de λ = 1 (environ 0,99 à 1,01).', 'C’est pour cela que la sonde lambda régule le mélange en permanence et le fait osciller autour de λ = 1.', 'Le catalyseur ne fonctionne qu’au-dessus d’environ 300 °C : les premières minutes à froid produisent l’essentiel de la pollution.']},
+  {cat:'Dépollution', titre:'Mesurer au contrôle technique', pts:['Moteur chaud, sonde de prélèvement enfoncée dans la sortie d’échappement, pas de fuite sur la ligne.', 'Mesure au ralenti, puis au ralenti accéléré (2 500 à 3 000 tr/min).', 'Le λ est calculé par l’analyseur à partir des concentrations de CO, CO₂, HC et O₂ (formule de Brettschneider).', 'Un λ hors limites avec un CO correct oriente vers une prise d’air à l’échappement ou une régulation lambda défaillante.']},
+];
+$('#gasCours').innerHTML = GAS_COURS.map(c => `<article class="fiche"><span class="cat">${c.cat}</span><h4>${c.titre}</h4><ul>${c.pts.map(p => `<li>${p}</li>`).join('')}</ul></article>`).join('');
+PEDA.COURS.push(...GAS_COURS);
+renderCT();
+
+/* =====================================================================
    RAFRAÎCHISSEMENT
    ===================================================================== */
 function updateFast(){
@@ -2544,6 +2930,7 @@ function updateFast(){
   if (TAB === 'can') animNet(performance.now());
   if (TAB === 'dash'){ updateDash(); drawEngine(performance.now()); }
   if (TAB === 'bva') drawBva(performance.now());
+  if (TAB === 'rec') drawRec();
   soundUpdate();
 }
 let slowN = 0;
@@ -2557,6 +2944,9 @@ function updateSlow(){
   if (TAB === 'diag') updateDiag();
   if (TAB === 'maps') updateMaps();
   if (TAB === 'bva') updateBva();
+  if (TAB === 'dmm') updateDmm();
+  if (TAB === 'gas') updateGas();
+  ctTick();
 }
 
 /* =====================================================================
