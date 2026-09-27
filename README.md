@@ -11,6 +11,11 @@ Cinq moteurs essence et diesel (atmosphériques, turbo wastegate, turbo à géom
 - **Côté jeu** : chronomètre 0-100 km/h et 400 m départ arrêté avec records par moteur, 20 badges, niveaux (d'Apprenti à Ingénieur motoriste), notifications, bandeau « Premiers pas ».
 - **Côté pro** : fiche de diagnostic à remplir pendant chaque mission (défauts lus insérés automatiquement, copie en texte, bonus de points). Cas à plusieurs pannes. Espace professeur : composer un cas (moteur, pannes, parole du client, froid ou chaud) et générer un code à donner aux élèves.
 - **Navigation** en 5 espaces : Conduire, Mesurer, Réseau & diag, Ingénierie, Former.
+- **Atelier réaliste** : dans les missions, l'élève remplace des pièces (prix + temps barème à 65 €/h). La bonne pièce répare vraiment le véhicule, une mauvaise est facturée, et un véhicule rendu non réparé revient (retour client). Le score tient compte de la facture, des retours, de la fiche et de l'effacement des défauts.
+- **Pannes intermittentes** (faux contact) dans les cas composés par le professeur.
+- **Quiz** : 10 questions chronométrées tirées de 36 (capteurs, injection, allumage, diesel, turbo, CAN, mesures, dépollution, boîte auto, thermodynamique), avec explications.
+- **Schéma électrique interactif** : alimentation, référence 5 V, masses, signaux capteurs, commandes d'actionneurs, CAN ; on clique un fil et on lit la tension en direct.
+- **Mode projection** (thème clair pour vidéoprojecteur) et plein écran.
 
 - **Moteurs** : essence 1.6 atmosphérique, 1.4 turbo, 2.0 sport, diesel 1.6 et 2.0 common rail turbo. Générateur de moteur (cylindrée, alésage/course, taux de compression, suralimentation, régimes) avec fiche technique calculée (couple, puissance, PME, vitesse de piston, consommation spécifique) et alertes de conception.
 - **Modèle physique** : le couple vient de la masse d'air, du carburant brûlé et du rendement indiqué lié au taux de compression, moins les frottements et le pompage. Turbo avec inertie, remplissage variable selon le régime.
