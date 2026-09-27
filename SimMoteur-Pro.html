@@ -413,6 +413,10 @@ mark{background:color-mix(in srgb,var(--accent) 40%,transparent);color:inherit;b
           <input type="range" id="slope" min="-12" max="15" step="1" value="0">
         </div>
         <div class="row">
+          <div class="lab"><span>Altitude</span><b id="altV">0 m · 101 kPa</b></div>
+          <input type="range" id="alt" min="0" max="3000" step="100" value="0">
+        </div>
+        <div class="row">
           <div class="lab"><span>État de la route (adhérence)</span><b id="roadV">µ 1,0</b></div>
           <div class="seg" id="roadSeg" role="group" aria-label="État de la route"><button type="button" data-r="sec" class="on">Sec</button><button type="button" data-r="mouille">Mouillé</button><button type="button" data-r="neige">Neige</button><button type="button" data-r="verglas">Verglas</button></div>
           <label class="toggle" style="margin-top:6px"><input type="checkbox" id="espOff"> ESP / antipatinage désactivé (bouton ESP OFF)</label>
@@ -834,7 +838,9 @@ function fitCanvas(cv, fixedW){
 /* =====================================================================
    DONNÉES MOTEUR
    ===================================================================== */
-const BARO = 101.3;               // kPa
+const P0 = 101.3;                 // kPa, niveau de la mer
+let BARO = 101.3;                 // kPa, pression atmosphérique du lieu (altitude)
+const baroAt = alt => P0 * Math.exp(-alt / 8430);
 const RATIOS = [0, 3.72, 2.05, 1.43, 1.03, 0.79], FINAL = 4.06, RW = 0.31, MASS = 1250;
 const TDC = [0, 540, 180, 360];   // PMH compression par cylindre (ordre 1-3-4-2)
 const LHV = { e:43.0, d:42.8 };
@@ -864,7 +870,7 @@ function deriveEngine(src, id){
   d.stroke = d.vcyl / (Math.PI * Math.pow(d.bore / 1000, 2) / 4) * 1000;   // mm
   d.J = 0.10 + 0.05 * d.disp + (d.fuel === 'd' ? 0.04 : 0);
   d.cut = d.red + (d.fuel === 'd' ? 250 : 0);
-  d.p2max = BARO + d.boost * 100;
+  d.p2max = P0 + d.boost * 100;
   d.mapRange = d.turbo === 'none' ? 100 : 300;           // étendue du capteur de pression (kPa)
   d.etaMax = 0.78 * (1 - Math.pow(d.eps, -0.3));
   d.injFlow = d.fuel === 'e' ? 3.2 * d.disp / 1.6 * (d.turbo !== 'none' ? 1 + d.boost * 0.5 : 1) : 0;
@@ -964,6 +970,7 @@ const FAULTS = [
   {g:'Boîte automatique', id:'bvaTurb', label:'Capteur régime turbine BVA sans signal', dtc:'P0715'},
   {g:'Boîte automatique', id:'bvaLock', label:'Électrovanne de lock-up bloquée', dtc:'P0741'},
   {g:'Boîte automatique', id:'bvaAtf', label:'Niveau d’huile de boîte bas', dtc:'P0730'},
+  {g:'Mécanique', id:'oilPump', label:'Pression d’huile insuffisante (pompe usée, crépine colmatée)', dtc:'voyant huile'},
   {g:'Énergie', id:'battLow', label:'Batterie faible (usée)', dtc:'démarrage lent'},
   {g:'Énergie', id:'alt', label:'Alternateur ne charge plus', dtc:'P0562'},
   {g:'Réseau CAN', id:'canHcut', label:'CAN-H coupé au connecteur calculateur moteur', dtc:'U0100'},
@@ -1018,7 +1025,7 @@ function initState(){
   Object.assign(S, {
     t:0, key:0, box:'auto', lever:'P', pedal:0, brake:0, atf:15, nt:0, clim:false, amb:15, simSpeed:1,
     soc:1, vbat:12.6, rpm:0, running:false, runTime:0, burnT:0,
-    thr:0, p:1, map:BARO, airCyl:0, tCool:15, tAir:15, pFuel:1.8, pOil:0, pClim:5.5,
+    thr:0, p:1, map:BARO, airCyl:0, tCool:15, tAir:15, pFuel:1.8, pOil:0, tOil:15, brkT:15, brkP:0, fade:1, alt:0, pClim:5.5,
     v:0, gear:1, lock:false, shiftT:0, lastShift:-9,
     lamEx:5, lamBuf:[], lamM:5, o2v:0.45, o2Temp:15, lamSlow:1.05, o2dn:0.45, o2dnDelay:0.45,
     cylFire:[false,false,false,false], knockLevel:0, tind:0, tc:0, fuelGs:0,
@@ -1336,7 +1343,7 @@ function ecuPetrol(dt, running, cranking){
 
   // Turbo essence : soupape de décharge
   if (ENG.turbo !== 'none'){
-    E.p2T = BARO + ENG.boost * 100 * clamp((E.rpm - 1200) / 1300, 0, 1) * clamp((E.pedal - 10) / 60, 0, 1);
+    E.p2T = Math.min(BARO + (ENG.boost * 100 + P0 - BARO) * clamp((E.rpm - 1200) / 1300, 0, 1) * clamp((E.pedal - 10) / 60, 0, 1), BARO * (1 + ENG.boost * 1.3));   // consigne absolue : compense l’altitude dans la limite de survitesse du turbo
     const bErr = E.p2T - S.p2;
     if (running){ E.wgI = clamp((E.wgI || 0) - bErr * 0.25 * dt, -45, 45); E.wg = clamp(45 + 25 * clamp(E.rpm / ENG.red, 0, 1) - 0.4 * bErr + E.wgI, 0, 100); } else { E.wg = 100; E.wgI = 0; }
     boostMonitors(dt);
@@ -1507,7 +1514,7 @@ function ecuDiesel(dt, running, cranking){
   E.ti = E.tinj;
 
   // Suralimentation : consigne et turbo à géométrie variable
-  E.p2T = BARO + ENG.boost * 100 * clamp((E.rpm - 1000) / 900, 0, 1) * clamp(E.Q / (ENG.qmax * 0.75), 0, 1) * (1 - 0.15 * clamp((E.rpm - ENG.red * 0.8) / (ENG.red * 0.2), 0, 1));
+  E.p2T = Math.min(BARO + (ENG.boost * 100 + P0 - BARO) * clamp((E.rpm - 1000) / 900, 0, 1) * clamp(E.Q / (ENG.qmax * 0.75), 0, 1) * (1 - 0.15 * clamp((E.rpm - ENG.red * 0.8) / (ENG.red * 0.2), 0, 1)), BARO * (1 + ENG.boost * 1.3));
   if (E.limp) E.p2T = Math.min(E.p2T, BARO + 50);
   // PI + anticipation : on ouvre la géométrie quand le régime monte (sinon surpression)
   const bErr = E.p2T - E.map;
@@ -1671,7 +1678,7 @@ function physics(dt){
   const pex = BARO + 3 + (ENG.turbo !== 'none' ? (S.p2 - BARO) * 1.05 : 0) + (d ? S.dpfDp / 10 : 0);
   S.pex = pex;
   const Tpump = n > 5 ? Math.max(0, pex - S.map) * 1000 * ENG.vd / (4 * Math.PI) : 0;
-  const Tf = barToNm(fmepBar(n)) * (n > 5 ? 1 : 0.6) + (S.tCool < 80 ? (80 - S.tCool) * 0.06 * ENG.disp / 1.6 : 0) + Tpump;
+  const Tf = barToNm(fmepBar(n)) * (n > 5 ? 1 : 0.6) + (S.tOil < 80 ? (80 - S.tOil) * 0.06 * ENG.disp / 1.6 : 0) + Tpump;
   const Tacc = (altCharging ? 2.5 + E.fan : 0) + (E.comp ? 7 : 0);
   const Tcomp = !burn && n < 500 ? 16 * ENG.disp / 1.6 * (d ? 1.4 : 1) : 0;
   let Ts = 0;
@@ -1730,14 +1737,17 @@ function physics(dt){
   S.atf += (slipPow * 0.00012 - (S.atf - Math.max(S.amb, S.tCool * 0.85)) * 0.01) * dt;
   const M = MASS + S.cargo, ang = Math.atan(S.slope / 100);
   const Fgrade = M * 9.81 * Math.sin(ang);                                  // pente : force qui retient (ou pousse) le véhicule
-  const Fdrag = 0.5 * 1.2 * 0.65 * S.v * Math.abs(S.v) + (Math.abs(S.v) > 0.05 ? M * 9.81 * 0.012 * Math.cos(ang) * Math.sign(S.v) : 0) + Fgrade;
+  const rho = BARO * 1000 / (287.05 * (S.amb + 273.15));   // masse volumique de l’air : baisse avec l’altitude et la chaleur
+  const Fdrag = 0.5 * rho * 0.65 * S.v * Math.abs(S.v) + (Math.abs(S.v) > 0.05 ? M * 9.81 * (0.010 + 3.5e-6 * S.v * S.v) * Math.cos(ang) * Math.sign(S.v) : 0) + Fgrade;
   const brakeTo0 = (v, dd) => v > 0 ? Math.max(0, v - dd) : Math.min(0, v + dd);
   // Adhérence : route, report de charge, ABS et antipatinage (ESP/ASR)
   const mu = ROAD_MU[S.road] || 1;
   const Nf = M * 9.81 * Math.cos(ang) * clamp(0.6 - 0.08 * (S.acc || 0) / 9.81, 0.4, 0.75);   // charge sur l’essieu moteur (avant)
   const FtrMax = mu * Nf;
   const absOk = S.key >= 1 && !F.absOff && !F.wss && !F.absPump;
-  const aReq = S.brake / 100 * 11, aAvail = mu * 9.81 * Math.cos(ang);
+  S.brkP += (S.brake - S.brkP) * Math.min(1, dt / 0.12);   // montée en pression hydraulique (≈ 0,1 s)
+  const fade = 1 - clamp((S.brkT - 380) / 320, 0, 0.55);   // plaquettes trop chaudes : le coefficient de frottement chute
+  const aReq = S.brkP / 100 * 11 * fade, aAvail = mu * 9.81 * Math.cos(ang);
   let aBrake = aReq; S.absAct = false; S.wLock = false;
   if (aReq > aAvail * 0.98 && Math.abs(S.v) > 1){
     if (absOk){ aBrake = aAvail * 0.93; S.absAct = true; }      // ABS : glissement tenu vers 12 %, meilleure adhérence
@@ -1749,6 +1759,8 @@ function physics(dt){
   let spinT = 0;
   const grip = Fw => { if (Math.abs(Fw) <= FtrMax || Math.abs(S.v) > 45) return Fw; spinT = clamp(Math.abs(Fw) / FtrMax - 1, 0, 1); return Math.sign(Fw) * FtrMax * (asrOk ? 0.97 : 0.82); };
   const v0 = S.v;
+  { const Pbr = S.wLock || S.brkP < 0.5 ? 0 : aBrake * M * Math.abs(S.v);   // puissance dissipée par les disques
+    S.brkT += (0.75 * Pbr - (6 + 2 * Math.abs(S.v)) * (S.brkT - S.amb)) / 5200 * dt; S.fade = fade; }
   if (S.lock){
     const rT = gearRatio(S.gear) * FINAL;
     const Fraw = (S.tind - Tf - Tacc) * rT * 0.92 / RW;
@@ -1786,16 +1798,22 @@ function physics(dt){
   if (S.running && (S.rpm < 250 || (!burn && S.rpm < 400 && S.key !== 2))) S.running = false;
   if (S.running) S.runTime += dt; else S.runTime = 0;
 
-  S.pOil = S.rpm > 200 ? 1 + S.rpm / 1000 * 0.9 + (S.tCool < 40 ? 0.8 : 0) : S.rpm / 400;
+  // Huile moteur : elle chauffe après le liquide ; sa viscosité fixe la pression (clapet de décharge vers 5 bar)
+  const tOilT = S.running ? S.tCool + 4 + S.rpm / 1000 * 2.5 + S.fuelGs * 1.5 : S.amb;
+  S.tOil += (tOilT - S.tOil) * Math.min(1, dt / (S.running ? 160 : 1800));
+  const visc = clamp(Math.exp((95 - S.tOil) / 40), 0.5, 12), pw = F.oilPump ? 0.4 : 1;
+  S.pOil = S.rpm > 30 ? Math.min((0.3 + S.rpm / 1000 * 0.95) * Math.sqrt(visc) * pw, 5.2 * (F.oilPump ? 0.6 : 1)) : 0;
   const pcT = E.comp ? 14 + S.amb * 0.15 - (E.fan ? 1.5 : 0) : 5 + S.amb * 0.08;
   S.pClim += (pcT - S.pClim) * Math.min(1, dt / 4);
 
   // Thermique : la chaleur au liquide suit la puissance carburant
   const Q = S.running ? 1.0 * Math.pow(Math.max(S.fuelGs, 0), 0.55) * (d ? 0.8 : 1) * Math.sqrt(1.6 / Math.max(ENG.disp, 0.8)) : 0;   // °C/s : grande inertie du circuit de refroidissement
+  const Qfric = S.rpm > 300 ? 0.3 * S.rpm / 2000 * Math.sqrt(1.6 / Math.max(ENG.disp, 0.8)) : 0;   // frottements entraînés (frein moteur, injection coupée) : ils chauffent aussi
+  const Qh = Math.max(Q, Qfric);
   const open = F.thermo ? 1 : clamp((S.tCool - 84) / 10, 0, 1);
   const fanLvl = E.fan === 2 ? 2.2 : E.fan === 1 ? 1.2 : 0;
   const rad = 0.011 * open * (1 + 0.08 * Math.abs(S.v) + fanLvl);
-  S.tCool += (Q - (0.004 + rad) * (S.tCool - S.amb)) * dt;
+  S.tCool += (Qh - (0.004 + rad) * (S.tCool - S.amb)) * dt;
   const tAirT = S.amb + (Math.abs(S.v) < 5 ? 0.22 : 0.06) * (S.tCool - S.amb) + (S.running ? 3 : 0) + (S.p2 - BARO) * 0.12;
   S.tAir += (tAirT - S.tAir) * Math.min(1, dt / 25);
 
@@ -2017,14 +2035,14 @@ function updateReadout(){
 }
 driveUI();
 $('#simSeg').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; S.simSpeed = +b.dataset.s; [...$('#simSeg').children].forEach(x => x.classList.toggle('on', x === b)); $('#spdV').textContent = '×' + S.simSpeed; });
-$('#preHot').onclick = () => { S.tCool = 90; S.tAir = S.amb + 12; S.o2Temp = Math.max(S.o2Temp, 650); S.lamSlow = 1; E.thermoT = 700; log('Préréglage : moteur à 90 °C'); };
-$('#preCold').onclick = () => { setKey(0); S.rpm = 0; S.running = false; const a = $('#amb'); a.value = -5; a.dispatchEvent(new Event('input')); S.tCool = -5; S.tAir = -5; S.o2Temp = -5; S.pFuel = 1.6; log('Préréglage : véhicule resté dehors toute la nuit à −5 °C'); };
+$('#preHot').onclick = () => { S.tCool = 90; S.tOil = 95; S.tAir = S.amb + 12; S.o2Temp = Math.max(S.o2Temp, 650); S.lamSlow = 1; E.thermoT = 700; log('Préréglage : moteur à 90 °C'); };
+$('#preCold').onclick = () => { setKey(0); S.rpm = 0; S.running = false; const a = $('#amb'); a.value = -5; a.dispatchEvent(new Event('input')); S.tCool = -5; S.tOil = -5; S.tAir = -5; S.o2Temp = -5; S.pFuel = 1.6; log('Préréglage : véhicule resté dehors toute la nuit à −5 °C'); };
 $('#preReset').onclick = () => {
   FAULTS.forEach(f => { F[f.id] = false; const c = $('#f-' + f.id); if (c) c.checked = false; });
   const keepSim = S.simSpeed; initState(); initEcu(); S.simSpeed = keepSim;
   Object.keys(DTC).forEach(k => delete DTC[k]); Object.keys(dtcTimer).forEach(k => delete dtcTimer[k]);
   LOG.length = 0; diag.connected = false; setKey(0); setHold(0); setPedal(0); setBrake(0); driveUI();
-  [['amb', 15], ['slope', 0], ['cargo', 75]].forEach(([id, v]) => { const el = $('#' + id); if (el){ el.value = v; el.dispatchEvent(new Event('input')); } });
+  [['amb', 15], ['slope', 0], ['cargo', 75], ['alt', 0]].forEach(([id, v]) => { const el = $('#' + id); if (el){ el.value = v; el.dispatchEvent(new Event('input')); } });
   $('#clim').checked = false; S.clim = false; updateFaultCount(); log('Simulation réinitialisée');
 };
 $('#logClear').onclick = () => { LOG.length = 0; logDirty = true; };
@@ -2161,6 +2179,8 @@ function strategies(){
   const L = [];
   const add = (t, c, why) => L.push({ t, c, why });
   if (!E.on){ add('Calculateur en veille', '', 'Contact coupé : le calculateur ne consomme presque rien et garde en mémoire ses apprentissages et ses défauts.'); return L; }
+  if (S.fade < 0.97) add('Freins en fading', 'crit', `Disques à ${fmt(S.brkT)} °C : le frottement des plaquettes chute, il faut appuyer bien plus fort pour freiner autant (efficacité ${fmt(S.fade * 100)} %). En descente, utilisez le frein moteur (rapport inférieur).`);
+  if (BARO < 95 && S.running) add(ENG.turbo !== 'none' ? 'Compensation altimétrique' : 'Altitude : perte de remplissage', ENG.turbo !== 'none' ? 'on' : 'warn', ENG.turbo !== 'none' ? `Pression atmosphérique ${fmt(BARO)} kPa : le turbo tourne plus vite pour garder la même pression absolue, dans la limite de sa survitesse.` : `Pression atmosphérique ${fmt(BARO)} kPa : chaque cylindre aspire ${fmt((1 - BARO / P0) * 100)} % d’air en moins, le couple baisse d’autant.`);
   if (S.absAct) add('ABS en régulation', 'warn', `Le freinage demandé dépasse l’adhérence (µ ≈ ${fmt(ROAD_MU[S.road], 2)}). Le groupe ABS relâche puis réapplique la pression plusieurs fois par seconde pour garder un glissement d’environ 12 % : la voiture reste dirigeable.`);
   if (S.wLock) add('Roues bloquées', 'crit', 'ABS hors service : les roues se bloquent, la voiture glisse tout droit et la distance d’arrêt augmente.');
   if (S.asrRed > 0.05) add('Antipatinage (ASR)', 'warn', `Les roues motrices patinent : l’ESP demande au calculateur moteur de réduire le couple de ${fmt(S.asrRed * 100)} % (papillon, avance, injection).`);
@@ -2734,7 +2754,8 @@ function drawScope(){
     ctx.save(); ctx.beginPath(); ctx.rect(0, 0, w, h); ctx.clip();
     ctx.strokeStyle = col; ctx.lineWidth = 1.6; ctx.shadowColor = col; ctx.shadowBlur = 4;
     ctx.beginPath();
-    pts.forEach(([x, v], i) => { const y = zeroY - (v - off) / vdiv * gy; if (i) ctx.lineTo(x, y); else ctx.moveTo(x, y); });
+    const nz = vdiv * 0.035, sd = s.t * 977 + idx * 31;   // bruit de mesure et parasites de l’allumage
+    pts.forEach(([x, v], i) => { const r1 = Math.sin(i * 12.9898 + sd) * 43758.5453, y = zeroY - (v - off + nz * ((r1 - Math.floor(r1)) - 0.5) * 2) / vdiv * gy; if (i) ctx.lineTo(x, y); else ctx.moveTo(x, y); });
     ctx.stroke(); ctx.restore();
     // repère de zéro
     ctx.fillStyle = col; ctx.beginPath(); ctx.moveTo(0, zeroY - 5); ctx.lineTo(8, zeroY); ctx.lineTo(0, zeroY + 5); ctx.fill();
@@ -3525,6 +3546,7 @@ const RP = [
   ['atf', 'T° huile de boîte', '°C', -20, 140, () => S.atf, 1], ['bat', 'Batterie', 'V', 8, 15, () => S.vbat, 2],
   ['tq', 'Couple moteur', 'Nm', -20, 160, () => S.tind, 0], ['cons', 'Consommation', 'L/h', 0, 40, () => S.fuelGs * 3600 / 745, 2],
   ['co', 'CO échappement', '%', 0, 5, () => S.gas.co, 2], ['hc', 'HC échappement', 'ppm', 0, 1500, () => S.gas.hc, 0],
+  ['toil', 'T° huile moteur', '°C', -20, 150, () => S.tOil, 1], ['poil', 'Pression d’huile', 'bar', 0, 6, () => S.pOil, 2], ['brk', 'T° disques de frein AV', '°C', 0, 700, () => S.brkT, 0],
   ['whf', 'Vitesse roue AV droite', 'km/h', 0, 200, () => F.wss ? 0 : S.whl[1], 0], ['whr', 'Vitesse roue AR droite', 'km/h', 0, 200, () => S.whl[3], 0], ['dec', 'Accélération véhicule', 'm/s²', -12, 6, () => S.acc, 2], ['slip', 'Patinage roues motrices', '%', 0, 100, () => S.spin * 100, 0],
   ['nox', 'NOx échappement', 'ppm', 0, 2500, () => S.gas.nox, 0], ['cat', 'T° catalyseur', '°C', 0, 900, () => S.catT, 0],
 ];
@@ -3743,6 +3765,9 @@ const GAS_COURS = [
 $('#gasCours').innerHTML = GAS_COURS.map(c => `<article class="fiche"><span class="cat">${c.cat}</span><h4>${c.titre}</h4><ul>${c.pts.map(p => `<li>${p}</li>`).join('')}</ul></article>`).join('');
 PEDA.COURS.push(...GAS_COURS);
 PEDA.COURS.push(
+  {cat:'Freinage', titre:'Échauffement des freins et fading', pts:['Freiner transforme l’énergie cinétique en chaleur : un 100-0 km/h dissipe environ 500 kJ, les disques avant prennent 60 à 80 °C d’un coup.','Au-delà de 400 °C environ, le coefficient de frottement des plaquettes chute : c’est le fading. La pédale reste ferme mais la voiture ralentit mal.','En longue descente, rétrograder : le frein moteur (pompage + frottements, injection coupée) absorbe une partie de l’énergie.','Essayez : pente −12 %, chargement 1 000 kg, freinage continu, et suivez la T° des disques à l’enregistreur.']},
+  {cat:'Moteur', titre:'Altitude et suralimentation', pts:['La pression atmosphérique baisse d’environ 12 % tous les 1 000 m : 101 kPa au niveau de la mer, 80 kPa à 2 000 m.','Un moteur atmosphérique aspire un air moins dense : il perd environ 10 % de couple par 1 000 m.','Un turbo régulé en pression absolue compense : il tourne plus vite pour atteindre la même consigne, jusqu’à sa limite de survitesse.','L’air moins dense réduit aussi la traînée aérodynamique.']},
+  {cat:'Lubrification', titre:'Pression d’huile', pts:['La pompe est volumétrique : la pression dépend du régime et de la viscosité (donc de la température) de l’huile.','Valeurs typiques à 90 °C : 1 à 1,5 bar au ralenti, 3 à 4 bar à 3 000 tr/min ; le clapet de décharge limite vers 5 bar.','À froid, l’huile épaisse donne une forte pression et plus de frottements (consommation en hausse).','Voyant qui s’allume au ralenti à chaud : usure de pompe ou de coussinets, crépine colmatée, huile trop fluide. Contrôle au manomètre.']},
   {cat:'Freinage', titre:'Adhérence et glissement', pts:['La force de freinage maximale vaut µ × poids : µ ≈ 1 sur route sèche, 0,7 mouillée, 0,3 sur neige, 0,1 sur verglas.','Décélération maximale ≈ µ × 9,81 m/s². Distance d’arrêt ≈ v² ÷ (2 × décélération) : 100 km/h → 39 m sur le sec, plus de 300 m sur le verglas.','Glissement = (vitesse véhicule − vitesse roue) ÷ vitesse véhicule. L’adhérence est maximale vers 10 à 20 % ; roue bloquée (100 %), elle chute et la voiture ne se dirige plus.','Essayez : route mouillée, 100 km/h, freinage à fond avec et sans ABS (panne « fusible ABS »).']},
   {cat:'Freinage', titre:'ABS, ESP, antipatinage', pts:['Le calculateur ABS compare les 4 vitesses de roue. Si une roue ralentit trop vite, il maintient, relâche puis réapplique la pression (électrovannes + pompe de retour), plusieurs fois par seconde.','ASR (antipatinage) : si les roues motrices patinent, l’ESP freine la roue et demande au calculateur moteur de réduire le couple par le CAN.','ESP : ajoute un capteur d’angle volant et de lacet pour corriger une trajectoire en freinant une seule roue.','Défaut ABS : voyants ABS et ESP allumés, freinage classique conservé (sécurité), défaut C0xxx dans le calculateur ABS.']});
 renderCT();
@@ -4041,6 +4066,8 @@ const BADGES = [
   ['sniper', 'Juste du premier coup', 'Réparer sans pièce inutile ni retour client'],
   ['quiz', 'As du quiz', 'Obtenir au moins 8 / 10 au quiz'],
   ['wire', 'Électricien', 'Mesurer 10 points sur le schéma électrique'],
+  ['alt', 'Haute montagne', 'Rouler à plus de 2 000 m d’altitude'],
+  ['fade', 'Freins fumants', 'Faire chauffer les disques au-delà de 400 °C'],
   ['ice', 'Patinoire', 'Rouler sur le verglas'],
   ['brake', 'Pied de plomb', 'Réaliser un freinage 100-0 km/h'],
   ['exam', 'Examen réussi', 'Terminer un cas en mode examen'],
@@ -4064,7 +4091,7 @@ try { PERF.best = JSON.parse(localStorage.getItem('simmoteur-perf') || '{}'); } 
 const BRK = { st:'idle', t0:0, d0:0, v0:0 };
 function brakeTick(){
   const kmh = S.v * 3.6;
-  if (BRK.st === 'idle' && kmh >= 95 && S.brake > 40){ Object.assign(BRK, { st:'run', t0:S.t, d0:S.odo, v0:kmh, abs:false, lock:false }); }
+  if (BRK.st === 'idle' && kmh >= 90 && S.brake > 40){ Object.assign(BRK, { st:'run', t0:S.t, d0:S.odo, v0:kmh, abs:false, lock:false }); }
   if (BRK.st !== 'run') return;
   BRK.abs = BRK.abs || S.absAct; BRK.lock = BRK.lock || S.wLock;
   if (S.brake < 20){ BRK.st = 'idle'; return; }
@@ -4104,6 +4131,7 @@ function badgeTick(dt){
   if (S.slope >= 10 && kmh > 50) award('hill');
   if (E.regen && E.dpfLoad < 12) award('regen');
   if (S.fuel <= 0) PROG.dryPending = true;
+  if (S.brkT > 400) award('fade');
 }
 
 /* =====================================================================
@@ -4177,6 +4205,7 @@ function drawRoad(now){
   if (rev){ ctx.fillStyle = '#fff'; ctx.shadowColor = '#fff'; ctx.shadowBlur = 14; ctx.fillRect(bx + 1, by + H * 0.4, 6, 6); ctx.shadowBlur = 0; }
   if (S.key >= 1){ const hl = ctx.createLinearGradient(bx + L, 0, bx + L + 160 * k, 0); hl.addColorStop(0, 'rgba(255,236,170,.35)'); hl.addColorStop(1, 'rgba(255,236,170,0)'); ctx.fillStyle = hl; ctx.beginPath(); ctx.moveTo(bx + L - 2, by + H * 0.25); ctx.lineTo(bx + L + 170 * k, by + H * 0.9); ctx.lineTo(bx + L + 170 * k, by - H * 0.3); ctx.fill(); ctx.fillStyle = '#ffe9a8'; ctx.fillRect(bx + L - 6, by + H * 0.18, 5, 7); }
   wheel(bx + L * 0.2); wheel(bx + L * 0.8);
+  if (S.brkT > 280){ const a = clamp((S.brkT - 280) / 300, 0, 0.85); ctx.fillStyle = `rgba(255,${Math.round(90 - a * 60)},30,${a})`; ctx.shadowColor = '#ff5a1e'; ctx.shadowBlur = 12 * a; ctx.beginPath(); ctx.arc(bx + L * 0.8, wy, r * 0.5, 0, TAU); ctx.fill(); ctx.shadowBlur = 0; }
   // fumée de pneus : roues bloquées ou patinage des roues avant
   if ((S.wLock && Math.abs(S.v) > 2 && S.road === 'sec') || (S.spin > 0.2 && S.road !== 'verglas')) for (let n = 0; n < 2; n++) PARTS.push({ x:bx + L * (S.wLock ? 0.2 + 0.6 * (n % 2) : 0.8), y:-4, vx:-20 - Math.random() * 30, vy:-10 - Math.random() * 10, life:0.8, sz:5 + Math.random() * 4, soot:0, vapor:0.9 });
   // projections de neige ou d'eau
@@ -4231,7 +4260,7 @@ function drawRoad(now){
     FLAKES.forEach(q => { if (S.road === 'neige'){ q.y += 40 * dtR; q.x -= (S.v * 4 + 10) * dtR; ctx.beginPath(); ctx.arc(q.x, q.y, 1.6, 0, TAU); ctx.fill(); } else { q.y += 500 * dtR; q.x -= (S.v * 8 + 40) * dtR; ctx.beginPath(); ctx.moveTo(q.x, q.y); ctx.lineTo(q.x + 2 + S.v * 0.2, q.y - 12); ctx.stroke(); } if (q.y > h){ q.y = -10; q.x = Math.random() * (w + 200); } if (q.x < -20) q.x += w + 40; });
   } else FLAKES.length = 0;
   // régulations de freinage et d'adhérence
-  const tags = []; if (S.absAct) tags.push(['ABS', COL.warn]); if (S.asrRed > 0.05 && !S.espOff) tags.push(['ESP · ASR', COL.warn]); if (S.wLock) tags.push(['ROUES BLOQUÉES', COL.crit]); if (S.spin > 0.2 && (S.espOff || S.asrRed < 0.05)) tags.push(['PATINAGE', COL.crit]); if (S.road !== 'sec') tags.push([ROAD_TXT[S.road].toUpperCase() + ' · µ ' + fmt(ROAD_MU[S.road], 2), COL.muted]);
+  const tags = []; if (S.absAct) tags.push(['ABS', COL.warn]); if (S.asrRed > 0.05 && !S.espOff) tags.push(['ESP · ASR', COL.warn]); if (S.wLock) tags.push(['ROUES BLOQUÉES', COL.crit]); if (S.spin > 0.2 && (S.espOff || S.asrRed < 0.05)) tags.push(['PATINAGE', COL.crit]); if (S.brkT > 300) tags.push([`FREINS ${fmt(S.brkT)} °C${S.fade < 0.97 ? ' · FADING' : ''}`, S.fade < 0.97 ? COL.crit : COL.warn]); if (BARO < 95) tags.push([`${fmt(S.alt)} M · ${fmt(BARO)} KPA`, COL.muted]); if (S.road !== 'sec') tags.push([ROAD_TXT[S.road].toUpperCase() + ' · µ ' + fmt(ROAD_MU[S.road], 2), COL.muted]);
   ctx.font = '700 13px "Barlow Condensed", sans-serif'; ctx.textAlign = 'left';
   let tx = 12; tags.forEach(([t, c]) => { const tw = ctx.measureText(t).width + 16; ctx.fillStyle = 'rgba(7,11,14,.65)'; ctx.fillRect(tx, 82, tw, 22); ctx.strokeStyle = c; ctx.strokeRect(tx + .5, 82.5, tw - 1, 21); ctx.fillStyle = c; ctx.fillText(t, tx + 8, 98); tx += tw + 6; });
   if (BRK.st === 'run' || (BRK.last && S.t - BRK.last.t < 8)){
@@ -4244,6 +4273,7 @@ function drawRoad(now){
 }
 // Commandes de route
 bindRange('slope', v => { S.slope = v; $('#slopeV').textContent = (v > 0 ? '+' : '') + v + ' %'; });
+bindRange('alt', v => { S.alt = v; BARO = baroAt(v); if (!S.running) S.p2 = BARO; $('#altV').textContent = `${v} m · ${fmt(BARO)} kPa`; if (v >= 2000) award('alt'); });
 $('#roadSeg').onclick = e => { const b = e.target.closest('button'); if (!b) return; S.road = b.dataset.r; document.querySelectorAll('#roadSeg button').forEach(x => x.classList.toggle('on', x === b)); $('#roadV').textContent = 'µ ' + fmt(ROAD_MU[S.road], 2); log(`Route : ${ROAD_TXT[S.road]} (adhérence µ ≈ ${fmt(ROAD_MU[S.road], 2)})`, 'i'); if (S.road === 'verglas') award('ice'); };
 $('#espOff').onchange = e => { S.espOff = e.target.checked; log(S.espOff ? 'ESP OFF : l’antipatinage ne limite plus le couple' : 'ESP réactivé', S.espOff ? 'w' : 'i'); };
 bindRange('cargo', v => { S.cargo = v; $('#cargoV').textContent = v + ' kg'; });
@@ -4276,6 +4306,9 @@ function updateFuelUI(){ $('#fuelV').textContent = fmt(S.fuel, 1) + ' L'; const 
    QUIZ
    ===================================================================== */
 const QUIZ = [
+  ['Moteur', 'À 2 000 m d’altitude, un moteur atmosphérique…', ['perd environ 20 % de couple', 'gagne de la puissance', 'garde la même puissance', 'ne peut plus démarrer'], 0, 'La pression y est d’environ 80 kPa : chaque cylindre aspire environ 20 % d’air en moins, donc brûle moins de carburant.'],
+  ['Freinage', 'Après une longue descente freins serrés, la voiture freine mal alors que la pédale est ferme. C’est…', ['le fading (plaquettes trop chaudes)', 'de l’air dans le circuit', 'un capteur ABS HS', 'un manque de liquide'], 0, 'Au-delà de 400 °C environ, le coefficient de frottement des plaquettes chute. De l’air dans le circuit donnerait au contraire une pédale spongieuse.'],
+  ['Lubrification', 'Le voyant d’huile s’allume seulement au ralenti moteur chaud. Première vérification ?', ['Mesurer la pression d’huile au manomètre', 'Changer le calculateur', 'Remplacer la sonde lambda', 'Purger les freins'], 0, 'À chaud, l’huile est fluide : une pompe usée ne tient plus la pression au ralenti. Seul un manomètre dit si la pression est réellement basse.'],
   ['Freinage', 'Sur quelle route la distance de freinage de 100 à 0 km/h est-elle la plus longue ?', ['Verglas', 'Neige', 'Route mouillée', 'Route sèche'], 0, 'Le verglas a l’adhérence la plus faible (µ ≈ 0,1) : décélération d’environ 1 m/s², plus de 300 m pour s’arrêter.'],
   ['Freinage', 'Quel est le principal intérêt de l’ABS ?', ['Garder la voiture dirigeable en freinage d’urgence', 'Freiner sans pédale', 'Supprimer l’usure des plaquettes', 'Augmenter la puissance du moteur'], 0, 'Roue bloquée = plus de guidage. L’ABS maintient un glissement d’environ 12 %, ce qui donne aussi en général une distance plus courte.'],
   ['Freinage', 'Un capteur de roue actif produit…', ['un signal carré en courant (7 / 14 mA)', 'une tension alternative sinusoïdale', 'une tension continue fixe', 'un signal PWM de 12 V'], 0, 'Le capteur actif a une électronique intégrée : il module son courant. Il mesure dès l’arrêt, contrairement au capteur inductif.'],
@@ -4506,6 +4539,7 @@ const MISSIONS = {
   vgtOpen:{turbo:true, d:'moyen', client:'Plus aucune puissance, le turbo ne pousse plus.', h:['Pression de suralimentation mesurée et consigne en accélération.','Commande du turbo et position réelle.'], cor:'La régulation du turbo est bloquée en position ouverte : la turbine ne tourne pas assez vite, pas de pression. Code P0299. Contrôler l’actionneur, sa commande et la mécanique du turbo.'},
   vgtClosed:{turbo:true, d:'moyen', client:'En pleine accélération, un à-coup puis la voiture se met en sécurité.', h:['Pression de suralimentation en accélération par rapport à la consigne.','Défauts mémorisés à la valise.'], cor:'Régulation du turbo bloquée fermée : la pression dépasse la consigne (surpression). Le calculateur réduit la charge pour protéger le moteur et le turbo. Code P0234.'},
   boostLeak:{turbo:true, d:'moyen', client:'Ça siffle en accélération et ça manque de puissance.', h:['Pression de suralimentation obtenue par rapport à la consigne.','Contrôlez les durites entre turbo, échangeur et collecteur.'], cor:'Durite de suralimentation fendue : l’air comprimé s’échappe, la pression n’atteint pas la consigne malgré le turbo au maximum. Code P0299. Remplacer la durite, vérifier les colliers.'},
+  oilPump:{d:'moyen', client:'Le voyant d’huile clignote au ralenti quand le moteur est bien chaud. Il s’éteint dès que j’accélère.', h:['Onglet Capteurs : relevez la pression d’huile à froid puis à chaud.','Comparez ralenti et 2 000 tr/min (enregistreur : pression d’huile).','Le calculateur ne voit rien : le manocontact est câblé directement au combiné.'], cor:'La pompe usée (ou la crépine colmatée) ne débite plus assez. À froid, l’huile épaisse masque le défaut ; à chaud, au ralenti, la pression tombe sous le seuil du manocontact (≈ 0,5 bar). Contrôle au manomètre : au moins 1 bar au ralenti et 3 bar à 3 000 tr/min à 90 °C. Arrêt immédiat conseillé : risque de coulage de bielle.'},
   wss:{d:'facile', client:'Les voyants ABS et ESP se sont allumés d’un coup. La voiture freine quand même.', h:['Valise : lisez les défauts du calculateur ABS.','Oscilloscope ou enregistreur : comparez les vitesses des 4 roues.','Trame CAN 0x1A0 : quelle roue ne donne plus rien ?'], cor:'Le capteur de roue avant droit ne fournit plus de signal : le calculateur ABS ne peut plus calculer le glissement de cette roue et désactive l’ABS et l’ESP par sécurité (freinage classique conservé). Contrôler l’alimentation, le faisceau (souvent abîmé près du pivot) et la cible. Code C0040.'},
   absPump:{d:'moyen', client:'Voyant ABS allumé. Sur la neige, en freinant fort, les roues se sont bloquées et la voiture a glissé tout droit.', h:['Valise : calculateur ABS.','Choisissez une route enneigée et freinez fort : les roues se bloquent-elles ?','Les capteurs de roue sont-ils cohérents ?'], cor:'Les capteurs sont bons mais le moteur de pompe du groupe hydraulique ne tourne plus : l’ABS ne peut plus moduler la pression, il est désactivé et les roues se bloquent sur sol glissant. Remplacer le groupe hydraulique, purger et coder. Code C0110.'},
   absOff:{d:'facile', client:'Le compteur de vitesse reste à zéro et un voyant de réseau est allumé.', h:['Onglet CAN : quelle trame est absente ?','Valise : quel calculateur est muet ?'], cor:'Le calculateur ABS n’est plus alimenté : la trame de vitesse 0x1A0 disparaît. Tous les calculateurs qui l’utilisent enregistrent U0121. Contrôler le fusible et l’alimentation de l’ABS.'},
@@ -4524,7 +4558,7 @@ const PIECES = {
   badFuel:['Vidange du réservoir + plein', 90, 1.0], railLow:['Pompe haute pression', 650, 2.5], injLeak:['Injecteur 3 + codage', 320, 1.2], thermo:['Thermostat + liquide', 45, 1.3],
   cat:['Catalyseur', 620, 1.2], dpfClog:['Filtre à particules', 950, 1.5], bvaTurb:['Capteur régime turbine BVA', 70, 1.8], bvaLock:['Électrovanne de lock-up BVA', 130, 3.0],
   bvaAtf:['Recherche de fuite + appoint huile BVA', 60, 1.0], battLow:['Batterie', 130, 0.3], alt:['Alternateur', 290, 1.4], canHcut:['Réparation faisceau CAN (calculateur moteur)', 20, 1.5],
-  canTerm:['Connecteur du BSI (terminaison)', 25, 0.8], canShort:['Réparation faisceau CAN (court-circuit)', 20, 2.0], absOff:['Fusible ABS', 2, 0.2], wss:['Capteur de roue AV droit', 55, 0.6], absPump:['Groupe hydraulique ABS + purge', 450, 2.0],
+  canTerm:['Connecteur du BSI (terminaison)', 25, 0.8], canShort:['Réparation faisceau CAN (court-circuit)', 20, 2.0], absOff:['Fusible ABS', 2, 0.2], oilPump:['Pompe à huile + crépine + vidange', 240, 3.5], wss:['Capteur de roue AV droit', 55, 0.6], absPump:['Groupe hydraulique ABS + purge', 450, 2.0],
 };
 const partOf = id => { const p = PIECES[id] || [faultLabel(FAULTS.find(f => f.id === id)), 50, 1]; const part = id === 'inj2' && isD() ? 320 : p[1]; return { id, name:p[0], part, h:p[2], cost:part + p[2] * LABOUR }; };
 const partList = () => FAULTS.filter(faultFits).map(f => partOf(f.id)).sort((a, b) => a.name.localeCompare(b.name, 'fr'));

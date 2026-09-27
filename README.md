@@ -8,14 +8,17 @@ Cinq moteurs essence et diesel (atmosphériques, turbo wastegate, turbo à géom
 
 - **Scène de conduite** : la voiture roule sur une route animée (pente, feux stop et de recul, phares). La fumée d'échappement suit les gaz calculés : suies, vapeur à froid. Ordinateur de bord : consommation instantanée et moyenne, trajet, réservoir, autonomie, panne sèche.
 - **Route réaliste** : pente de −12 à +15 %, chargement jusqu'à 1 200 kg, carburant consommé en litres, route sèche, mouillée, enneigée ou verglacée (pluie, neige, traces de freinage à l'écran).
-- **Freinage ABS et antipatinage (ESP/ASR)** : adhérence µ, glissement, roues qui se bloquent sans ABS, réduction de couple moteur par l'ESP, bouton ESP OFF. 4 capteurs de roue actifs (signal 7/14 mA à l'oscilloscope), trame CAN ABS étendue, voyants ABS/ESP. Test de freinage 100-0 km/h mesuré (distance, temps) selon la route.
-- **Côté jeu** : chronomètre 0-100 km/h et 400 m départ arrêté avec records par moteur, 26 badges, niveaux (d'Apprenti à Ingénieur motoriste), notifications, bandeau « Premiers pas ».
+- **Freinage ABS et antipatinage (ESP/ASR)** : adhérence µ, glissement, roues qui se bloquent sans ABS, réduction de couple moteur par l'ESP, bouton ESP OFF. 4 capteurs de roue actifs (signal 7/14 mA à l'oscilloscope), trame CAN ABS étendue, voyants ABS/ESP. Test de freinage 100-0 km/h mesuré (distance, temps) selon la route. Montée en pression hydraulique, disques qui chauffent et fading (perte d'efficacité au-delà de 400 °C en longue descente).
+- **Altitude** de 0 à 3 000 m : pression atmosphérique réelle, perte de couple des atmosphériques, compensation du turbo dans sa limite de survitesse, traînée selon la densité de l'air.
+- **Huile moteur** : température, pression selon régime et viscosité, frottements plus forts à froid, voyant de pression.
+- **Oscilloscope** : traces avec bruit de mesure réaliste.
+- **Côté jeu** : chronomètre 0-100 km/h et 400 m départ arrêté avec records par moteur, 28 badges, niveaux (d'Apprenti à Ingénieur motoriste), notifications, bandeau « Premiers pas ».
 - **Côté pro** : fiche de diagnostic à remplir pendant chaque mission (défauts lus insérés automatiquement, copie en texte, bonus de points). Cas à plusieurs pannes. Espace professeur : composer un cas (moteur, pannes, parole du client, froid ou chaud) et générer un code à donner aux élèves.
 - **Navigation** en 5 espaces : Conduire, Mesurer, Réseau & diag, Ingénierie, Former.
 - **Atelier réaliste** : dans les missions, l'élève remplace des pièces (prix + temps barème à 65 €/h). La bonne pièce répare vraiment le véhicule, une mauvaise est facturée, et un véhicule rendu non réparé revient (retour client). Le score tient compte de la facture, des retours, de la fiche et de l'effacement des défauts.
 - **Pannes intermittentes** (faux contact) dans les cas composés par le professeur.
 - **Mode examen** pour les cas du professeur : pas d'indice, pas de corrigé, chronomètre affiché.
-- **Quiz** : 10 questions chronométrées tirées de 40 (capteurs, injection, allumage, diesel, turbo, CAN, mesures, dépollution, boîte auto, thermodynamique), avec explications.
+- **Quiz** : 10 questions chronométrées tirées de 43 (capteurs, injection, allumage, diesel, turbo, CAN, mesures, dépollution, boîte auto, thermodynamique), avec explications.
 - **Schéma électrique interactif** : alimentation, référence 5 V, masses, signaux capteurs, commandes d'actionneurs, CAN ; on clique un fil et on lit la tension en direct.
 - **Mode projection** (thème clair pour vidéoprojecteur) et plein écran.
 
@@ -36,7 +39,7 @@ Cinq moteurs essence et diesel (atmosphériques, turbo wastegate, turbo à géom
 - **Banc de puissance** : frein asservi en régime, mesure pleine charge palier par palier (couple, puissance, consommation spécifique, λ, suralimentation, T° échappement) comparée à la courbe théorique. Une panne se voit sur la courbe.
 - **Combustion** : pression cylindre calculée (modèle une zone, loi de Wiebe, prémélange + diffusion en diesel), diagramme p-V, PMI, CA50, gradient de pression, rendement indiqué, cylindre par cylindre.
 - **Cartographies** : temps d'injection, avance, calcul du temps d'injection pas à pas, courbes couple / puissance.
-- **42 missions atelier** (essence, diesel, turbo, freinage ABS) : panne cachée, parole du client, indices, score.
+- **43 missions atelier** (essence, diesel, turbo, freinage ABS, lubrification) : panne cachée, parole du client, indices, score.
 - **Cours, glossaire, abréviations, contrôle technique** (repris de la version 7).
 - **Son moteur** optionnel.
 
