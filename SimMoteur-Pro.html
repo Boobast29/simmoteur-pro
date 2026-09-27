@@ -318,6 +318,9 @@ select{background:var(--panel2);border:1px solid var(--line2);border-radius:6px;
 .client{font-size:17px;line-height:1.45;margin:0 0 10px;quotes:"« " " »";max-width:60ch}
 .hints{margin:8px 0 0;padding-left:18px;font-size:13.5px;display:flex;flex-direction:column;gap:4px}
 .verdict{padding:10px 12px;border-radius:8px;font-size:13.5px}
+.exambar{display:flex;gap:12px;align-items:center;justify-content:space-between;padding:8px 12px;margin-bottom:10px;border-radius:8px;border:1px solid var(--crit);background:color-mix(in srgb,var(--crit) 12%,var(--panel2));font:600 14px var(--f-disp);letter-spacing:.04em}
+.exambar b{color:var(--crit)}
+#roadSeg{display:grid;grid-template-columns:repeat(4,1fr);width:100%}#roadSeg button{min-width:0;padding-left:2px;padding-right:2px;font-size:12px}.exambar .mono{font:500 20px var(--f-mono,monospace)}
 .verdict.ok{background:color-mix(in srgb,var(--ok) 16%,var(--panel2));border:1px solid var(--ok)}
 .verdict.no{background:color-mix(in srgb,var(--crit) 16%,var(--panel2));border:1px solid var(--crit)}
 .score{font:700 44px/1 var(--f-disp);color:var(--accent)}
@@ -408,6 +411,11 @@ mark{background:color-mix(in srgb,var(--accent) 40%,transparent);color:inherit;b
         <div class="row">
           <div class="lab"><span>Pente de la route</span><b id="slopeV">0 %</b></div>
           <input type="range" id="slope" min="-12" max="15" step="1" value="0">
+        </div>
+        <div class="row">
+          <div class="lab"><span>État de la route (adhérence)</span><b id="roadV">µ 1,0</b></div>
+          <div class="seg" id="roadSeg" role="group" aria-label="État de la route"><button type="button" data-r="sec" class="on">Sec</button><button type="button" data-r="mouille">Mouillé</button><button type="button" data-r="neige">Neige</button><button type="button" data-r="verglas">Verglas</button></div>
+          <label class="toggle" style="margin-top:6px"><input type="checkbox" id="espOff"> ESP / antipatinage désactivé (bouton ESP OFF)</label>
         </div>
         <div class="row">
           <div class="lab"><span>Chargement (passagers, bagages, remorque)</span><b id="cargoV">75 kg</b></div>
@@ -829,7 +837,9 @@ function fitCanvas(cv, fixedW){
 const BARO = 101.3;               // kPa
 const RATIOS = [0, 3.72, 2.05, 1.43, 1.03, 0.79], FINAL = 4.06, RW = 0.31, MASS = 1250;
 const TDC = [0, 540, 180, 360];   // PMH compression par cylindre (ordre 1-3-4-2)
-const LHV = { e:43.0, d:42.8 };   // pouvoir calorifique inférieur, J/mg
+const LHV = { e:43.0, d:42.8 };
+const ROAD_MU = { sec:1.0, mouille:0.7, neige:0.3, verglas:0.12 };
+const ROAD_TXT = { sec:'Sec', mouille:'Mouillé', neige:'Neige', verglas:'Verglas' };   // pouvoir calorifique inférieur, J/mg
 const AFR = { e:14.7, d:14.5 };   // rapport stœchiométrique
 
 /* =====================================================================
@@ -949,6 +959,8 @@ const FAULTS = [
   {g:'Thermique / dépollution', id:'thermo', label:'Thermostat bloqué ouvert', dtc:'P0128'},
   {g:'Thermique / dépollution', id:'cat', eng:'e', label:'Catalyseur usé', dtc:'P0420'},
   {g:'Thermique / dépollution', id:'dpfClog', eng:'d', label:'Filtre à particules colmaté (cendres)', dtc:'P2002'},
+  {g:'Freinage / ABS', id:'wss', label:'Capteur de roue AV droit sans signal', dtc:'C0040'},
+  {g:'Freinage / ABS', id:'absPump', label:'Groupe ABS : moteur de pompe HS', dtc:'C0110'},
   {g:'Boîte automatique', id:'bvaTurb', label:'Capteur régime turbine BVA sans signal', dtc:'P0715'},
   {g:'Boîte automatique', id:'bvaLock', label:'Électrovanne de lock-up bloquée', dtc:'P0741'},
   {g:'Boîte automatique', id:'bvaAtf', label:'Niveau d’huile de boîte bas', dtc:'P0730'},
@@ -985,6 +997,8 @@ const DTC_TXT = {
   P0128:'Température moteur : montée trop lente (thermostat)',
   P0420:'Efficacité du catalyseur sous le seuil',
   P0562:'Tension d’alimentation trop basse',
+  C0040:'Capteur de vitesse de roue AV droit : pas de signal',
+  C0110:'Groupe ABS : circuit moteur de pompe',
   U0121:'Perte de communication avec le calculateur ABS',
   U0101:'Perte de communication avec le calculateur de boîte',
   P0087:'Pression de rampe trop basse', P0088:'Pression de rampe trop haute',
@@ -1008,7 +1022,7 @@ function initState(){
     v:0, gear:1, lock:false, shiftT:0, lastShift:-9,
     lamEx:5, lamBuf:[], lamM:5, o2v:0.45, o2Temp:15, lamSlow:1.05, o2dn:0.45, o2dnDelay:0.45,
     cylFire:[false,false,false,false], knockLevel:0, tind:0, tc:0, fuelGs:0,
-    odo:48213.4, slope:0, cargo:75, fuel:45, trip:0, tripL:0, histAcc:0, altOk:true, crankT:0, catT:15, lamB:1, unb:0, burnN:0,
+    odo:48213.4, road:'sec', espOff:false, acc:0, spin:0, asrRed:0, absAct:false, wLock:false, whl:[0,0,0,0], slope:0, cargo:75, fuel:45, trip:0, tripL:0, histAcc:0, altOk:true, crankT:0, catT:15, lamB:1, unb:0, burnN:0,
     gas:{ co:0, hc:0, nox:0, co2:0.04, o2:20.9, k:0 }, raw:{ co:0, hc:0, nox:0, co2:0.04, o2:20.9, k:0 }, eff:{ co:0, hc:0, nox:0 },
     p2:BARO, tc:0, vgtPos:60, exhPow:0, rail:0, glow:0, egr:0, egrPos:0, airTot:0, maf:0, egt:20, smoke:0, soot:ENG.sootMax * 0.35, dpfDp:0, pex:BARO, tf:0, tdyno:0, qCyl:[0,0,0,0]
   });
@@ -1084,7 +1098,7 @@ const MSGS = [
   {id:0x110, name:'MOTEUR_1', tx:'ECM', rx:['BVA','ABS','COMB','BSI'], per:10, dlc:8},
   {id:0x120, name:'MOTEUR_2', tx:'ECM', rx:['COMB','BSI','CLIM'], per:100, dlc:6},
   {id:0x130, name:'BVA_1', tx:'BVA', rx:['ECM','COMB'], per:20, dlc:4},
-  {id:0x1A0, name:'ABS_1', tx:'ABS', rx:['ECM','BVA','COMB','BSI'], per:20, dlc:4},
+  {id:0x1A0, name:'ABS_1', tx:'ABS', rx:['ECM','BVA','COMB','BSI'], per:20, dlc:8},
   {id:0x220, name:'CLIM_1', tx:'CLIM', rx:['ECM','BSI'], per:100, dlc:3},
   {id:0x2A0, name:'BSI_1', tx:'BSI', rx:['ECM','COMB','CLIM'], per:100, dlc:4},
   {id:0x3E0, name:'COMBINE_1', tx:'COMB', rx:['BSI'], per:500, dlc:4},
@@ -1116,7 +1130,8 @@ function encode(){
   CAN.data[0x120] = [u8(E.tCool + 40), u8(E.tAir + 40), (mil ? 1 : 0) | (E.limp && !isD() ? 2 : 0) | (E.tCool > 112 ? 4 : 0) | (E.glowLamp ? 8 : 0) | (isD() && (E.dpfLoad > 150 || dtcActive('P2002')) ? 16 : 0), cons[0], cons[1], E.fan];
   CAN.data[0x130] = [!inGearNow() ? 0 : S.gear === -1 ? 15 : S.gear, S.box === 'manu' ? 5 : ({ P:0, N:1, R:2, D:3 }[S.lever] ?? 0), S.lock ? 1 : 0, S.shiftT > 0 ? 30 : 0];
   const sp = u16(Math.abs(S.v) * 3.6 * 100);
-  CAN.data[0x1A0] = [sp[0], sp[1], S.brake > 3 ? 1 : 0, CAN.alive];
+  const absF = F.wss || F.absPump, wk = S.whl.map((x, i) => clamp(Math.round(i === 1 && F.wss ? 0 : x), 0, 255));
+  CAN.data[0x1A0] = [sp[0], sp[1], (S.brake > 3 ? 1 : 0) | (S.absAct ? 2 : 0) | (S.asrRed > 0.05 ? 4 : 0) | (absF ? 8 : 0) | (S.espOff ? 16 : 0), wk[0], wk[1], wk[2], wk[3], CAN.alive];
   CAN.data[0x220] = [u8(S.pClim * 10), S.clim ? 1 : 0, S.clim ? 40 : 0];
   CAN.data[0x2A0] = [S.key, u8(S.amb + 40), u8(S.vbat * 10), S.clim ? 1 : 0];
   const km = Math.round(S.odo * 10);
@@ -1652,7 +1667,7 @@ function physics(dt){
   S.exhPow = S.fuelGs / ENG.disp * (S.egt + 273) / 1000;
 
   // Couple indiqué, frottements, pompage
-  S.tind = burn && n > 60 ? work / (4 * Math.PI) : 0;   // 4 temps : 2 tours par cycle, T = ΣW / 4π
+  S.tind = burn && n > 60 ? work / (4 * Math.PI) * (1 - (S.asrRed || 0)) : 0;   // ASR : réduction de couple demandée par l’ESP   // 4 temps : 2 tours par cycle, T = ΣW / 4π
   const pex = BARO + 3 + (ENG.turbo !== 'none' ? (S.p2 - BARO) * 1.05 : 0) + (d ? S.dpfDp / 10 : 0);
   S.pex = pex;
   const Tpump = n > 5 ? Math.max(0, pex - S.map) * 1000 * ENG.vd / (4 * Math.PI) : 0;
@@ -1717,11 +1732,27 @@ function physics(dt){
   const Fgrade = M * 9.81 * Math.sin(ang);                                  // pente : force qui retient (ou pousse) le véhicule
   const Fdrag = 0.5 * 1.2 * 0.65 * S.v * Math.abs(S.v) + (Math.abs(S.v) > 0.05 ? M * 9.81 * 0.012 * Math.cos(ang) * Math.sign(S.v) : 0) + Fgrade;
   const brakeTo0 = (v, dd) => v > 0 ? Math.max(0, v - dd) : Math.min(0, v + dd);
-  const Fbrake = (S.brake / 100) * M * 8 + (!manu && S.lever === 'P' ? 20000 : 0);
+  // Adhérence : route, report de charge, ABS et antipatinage (ESP/ASR)
+  const mu = ROAD_MU[S.road] || 1;
+  const Nf = M * 9.81 * Math.cos(ang) * clamp(0.6 - 0.08 * (S.acc || 0) / 9.81, 0.4, 0.75);   // charge sur l’essieu moteur (avant)
+  const FtrMax = mu * Nf;
+  const absOk = S.key >= 1 && !F.absOff && !F.wss && !F.absPump;
+  const aReq = S.brake / 100 * 11, aAvail = mu * 9.81 * Math.cos(ang);
+  let aBrake = aReq; S.absAct = false; S.wLock = false;
+  if (aReq > aAvail * 0.98 && Math.abs(S.v) > 1){
+    if (absOk){ aBrake = aAvail * 0.93; S.absAct = true; }      // ABS : glissement tenu vers 12 %, meilleure adhérence
+    else { aBrake = aAvail * 0.72; S.wLock = true; }           // roues bloquées : on glisse, on ne dirige plus
+  }
+  const Fbrake = aBrake * M + (!manu && S.lever === 'P' ? 20000 : 0);
   const holdStill = Fbrake >= Math.abs(Fgrade) + 1;
+  const asrOk = absOk && !S.espOff;
+  let spinT = 0;
+  const grip = Fw => { if (Math.abs(Fw) <= FtrMax || Math.abs(S.v) > 45) return Fw; spinT = clamp(Math.abs(Fw) / FtrMax - 1, 0, 1); return Math.sign(Fw) * FtrMax * (asrOk ? 0.97 : 0.82); };
+  const v0 = S.v;
   if (S.lock){
     const rT = gearRatio(S.gear) * FINAL;
-    const Fw = (S.tind - Tf - Tacc) * rT * 0.92 / RW;
+    const Fraw = (S.tind - Tf - Tacc) * rT * 0.92 / RW;
+    const Fw = grip(Fraw); if (spinT > 0.05) S.lock = false;
     const meq = M + ENG.J * Math.pow(rT / RW, 2);
     S.v += (Fw - Fdrag) / meq * dt;
     if (Fbrake > 0) S.v = brakeTo0(S.v, Fbrake / meq * dt);
@@ -1730,11 +1761,19 @@ function physics(dt){
     S.rpm += (S.tind + Ts - Tf - Tacc - Tcomp - Tc - Tdyno) * 60 / TAU / ENG.J * dt;
     S.rpm = Math.max(0, S.rpm);
     const srW = S.rpm > 50 ? wr / S.rpm : 0;
-    const Fw = Tc * (manu ? 1 : bvaTR(srW)) * ratio * 0.9 / RW;
+    const Fw = grip(Tc * (manu ? 1 : bvaTR(srW)) * ratio * 0.9 / RW);
     S.v += (Fw - Fdrag) / M * dt;
     if (Fbrake > 0) S.v = brakeTo0(S.v, Fbrake / M * dt);
     if (Math.abs(S.v) < 0.02 && Math.abs(Fw - Fgrade) < M * 9.81 * 0.012 && (holdStill || Math.abs(Fgrade) < M * 9.81 * 0.012)) S.v = 0;
   }
+  S.acc = (S.v - v0) / dt;
+  S.spin += (spinT - S.spin) * Math.min(1, dt / 0.12);
+  if (S.spin > 0.05 && asrOk) S.asrRed = Math.min(0.85, S.asrRed + 3 * dt); else S.asrRed = Math.max(0, S.asrRed - 1.5 * dt);
+  // Vitesses des roues (km/h) : ce que mesurent les capteurs de roue
+  const vk = Math.abs(S.v) * 3.6;
+  const absMod = S.absAct ? 1 - 0.12 - 0.1 * Math.abs(Math.sin(TAU * 6 * S.t)) : 1;
+  const fr = S.wLock ? 0 : vk * absMod * (1 + S.spin * 1.5), rr = S.wLock ? 0 : vk * (S.absAct ? 1 - 0.12 - 0.1 * Math.abs(Math.cos(TAU * 6 * S.t)) : 1);
+  S.whl = [fr, fr, rr, rr];
   S.odo += Math.abs(S.v) * dt / 1000;
   S.trip += Math.abs(S.v) * dt / 1000;
   const dL = S.fuelGs / (isD() ? 835 : 745) * dt;                            // litres consommés
@@ -2064,7 +2103,7 @@ function gauge(cv, val, max, o){
 
 const LAMPS = [
   {id:'mil', t:'Moteur', c:'a'}, {id:'epc', t:'EPC', c:'a'}, {id:'bat', t:'Charge', c:'r'}, {id:'oil', t:'Huile', c:'r'},
-  {id:'tmp', t:'T° eau', c:'r'}, {id:'com', t:'Défaut réseau', c:'a'}, {id:'fan', t:'GMV', c:'b'}, {id:'ac', t:'A/C', c:'g'}, {id:'rev', t:'Recul', c:'b'}, {id:'fuel', t:'Réserve', c:'a'}, {id:'glow', t:'Préchauffage', c:'a', d:1}, {id:'fap', t:'FAP', c:'a', d:1},
+  {id:'tmp', t:'T° eau', c:'r'}, {id:'com', t:'Défaut réseau', c:'a'}, {id:'fan', t:'GMV', c:'b'}, {id:'ac', t:'A/C', c:'g'}, {id:'rev', t:'Recul', c:'b'}, {id:'fuel', t:'Réserve', c:'a'}, {id:'abs', t:'ABS', c:'a'}, {id:'esp', t:'ESP', c:'a'}, {id:'glow', t:'Préchauffage', c:'a', d:1}, {id:'fap', t:'FAP', c:'a', d:1},
 ];
 function buildLamps(){ $('#lamps').innerHTML = LAMPS.filter(l => !l.d || isD()).map(l => `<span class="lamp ${l.c}" id="lp-${l.id}">${l.t}</span>`).join(''); }
 buildLamps();
@@ -2122,6 +2161,9 @@ function strategies(){
   const L = [];
   const add = (t, c, why) => L.push({ t, c, why });
   if (!E.on){ add('Calculateur en veille', '', 'Contact coupé : le calculateur ne consomme presque rien et garde en mémoire ses apprentissages et ses défauts.'); return L; }
+  if (S.absAct) add('ABS en régulation', 'warn', `Le freinage demandé dépasse l’adhérence (µ ≈ ${fmt(ROAD_MU[S.road], 2)}). Le groupe ABS relâche puis réapplique la pression plusieurs fois par seconde pour garder un glissement d’environ 12 % : la voiture reste dirigeable.`);
+  if (S.wLock) add('Roues bloquées', 'crit', 'ABS hors service : les roues se bloquent, la voiture glisse tout droit et la distance d’arrêt augmente.');
+  if (S.asrRed > 0.05) add('Antipatinage (ASR)', 'warn', `Les roues motrices patinent : l’ESP demande au calculateur moteur de réduire le couple de ${fmt(S.asrRed * 100)} % (papillon, avance, injection).`);
   if (isD()) return strategiesD(L, add);
   if (S.key === 2 && !S.running) add('Démarrage', 'on', `Le démarreur entraîne le moteur à ${fmt(S.rpm)} tr/min. Le calculateur attend la dent manquante pour se synchroniser, puis injecte un mélange riche (λ ${fmt(E.lamT, 2)}).`);
   if (!S.running && S.key === 1) add('Moteur arrêté, contact mis', '', 'Pompe amorcée 2 s puis coupée par sécurité tant qu’il n’y a pas de signal régime.');
@@ -2213,6 +2255,8 @@ function updateDash(){
     rev: powered && inGearNow() && S.gear === -1,
     glow: powered && c.glow,
     fuel: powered && S.fuel < 6,
+    abs: powered && (F.absOff || F.wss || F.absPump || (E.primeT < 3 && !S.running)),
+    esp: powered && (F.absOff || F.wss || F.absPump || S.espOff || S.asrRed > 0.05),
     fap: powered && c.fap,
   };
   // Test des voyants à la mise du contact (3 s) puis extinction si tout va bien
@@ -2223,6 +2267,7 @@ function updateDash(){
   LAMPS.forEach(l => { const el = $('#lp-' + l.id); if (el) el.classList.toggle('on', !!on[l.id]); });
   const misfire = ['P0301','P0302','P0303','P0304'].some(dtcActive) && S.running;
   $('#lp-mil').classList.toggle('blink', misfire);
+  const le = $('#lp-esp'); if (le) le.classList.toggle('blink', S.asrRed > 0.05 && !S.espOff);
 }
 
 function updateTiles(){
@@ -2301,6 +2346,12 @@ const IO = [
     principle:'Un cristal piézoélectrique produit une tension quand il est comprimé par les vibrations du bloc. Le calculateur isole la fréquence propre du cliquetis (5 à 15 kHz) juste après chaque PMH, cylindre par cylindre, et recule l’avance du seul cylindre concerné.',
     signal:'Tension alternative de faible amplitude (bruit mécanique), avec des bouffées nettes lors du cliquetis.', check:'Couple de serrage exact (la mesure en dépend). Résistance : très élevée (> 1 MΩ). Tapoter le bloc près du capteur : une tension doit apparaître.',
     fault:'Le calculateur ne peut plus détecter la détonation : il recule l’avance de plusieurs degrés partout, par sécurité. Perte de puissance, surconsommation. Code P0325.', scope:'knock'},
+  {id:'wss', dir:'in', name:'Capteurs de vitesse de roue (via ABS)', type:'Actif magnétorésistif · 2 fils · 7 / 14 mA', pin:'Calculateur ABS, 4 capteurs',
+    live:() => [F.wss ? 'AVD : 0 mA' : S.key >= 1 ? '7 / 14 mA' : '0 mA', S.key >= 1 ? S.whl.map(x => fmt(x)).join(' / ') + ' km/h' : '—', F.wss ? 'crit' : S.absAct || S.spin > 0.05 ? 'warn' : 'ok'],
+    principle:'Chaque roue porte une cible magnétique (ou une couronne dentée). Le capteur actif, alimenté par le calculateur ABS, fait varier son courant à chaque pôle : le calculateur compte les impulsions et calcule la vitesse de chaque roue. Il en déduit le glissement au freinage (ABS) et le patinage à l’accélération (ASR), et envoie la vitesse véhicule sur le CAN.',
+    signal:'Signal carré en courant : 7 mA / 14 mA, fréquence proportionnelle à la vitesse (48 pôles par tour ≈ 340 Hz à 50 km/h). Contrairement au capteur inductif, il mesure dès 0,1 km/h. Mesure : pince ampèremétrique ou résistance de 100 Ω en série (0,7 / 1,4 V).',
+    check:'Alimentation 12 V par le calculateur ABS contact mis. Ne pas mesurer la résistance d’un capteur actif (électronique intégrée). Vérifier le faisceau, le jeu roulement / cible, la propreté de la cible.',
+    fault:'Voyants ABS et ESP allumés, ABS et antipatinage désactivés (freinage classique sans régulation), code C0040. La vitesse sur le CAN reste calculée avec les autres roues.', scope:'wss'},
   {id:'batt', dir:'in', name:'Tension batterie', type:'Mesure interne du calculateur', pin:'C1-01 (+APC)',
     live:() => [fmt(S.vbat, 2) + ' V', S.running ? (F.alt ? 'pas de charge' : 'charge') : 'repos', S.vbat < 11.5 ? 'crit' : S.vbat < 12.2 ? 'warn' : 'ok'],
     principle:'Le temps d’ouverture réel d’un injecteur et le temps de charge d’une bobine dépendent de la tension. Le calculateur mesure la tension pour corriger le temps mort d’injecteur et le temps de conduction des bobines.',
@@ -2446,7 +2497,14 @@ $('#tIn').addEventListener('click', ioClick); $('#tOut').addEventListener('click
 let snap = null, scopeRun = true;
 function takeSnap(){
   snap = { soi:E.soi, tinj:E.tinj, tpilot:E.tpilot, post:E.post, rail:S.rail, cyc:cylCycle(0), n:S.rpm, ti:E.injOn ? E.ti : 0, dead:E.dead, dwell:E.dwell, adv:E.adv, vb:S.vbat, key:S.key, on:E.on, injOn:E.injOn, ignOn:E.ignOn,
-    cut:E.cut.slice(), knock:S.knockLevel, ckp:V.ckp, t:S.t };
+    cut:E.cut.slice(), knock:S.knockLevel, ckp:V.ckp, t:S.t, whl:S.whl[1], wss:F.wss, key1:S.key >= 1 };
+}
+// Capteur de roue actif (magnétorésistif) : il module son courant 7 / 14 mA, 48 impulsions par tour de roue
+function wssGen(th, s, t){
+  if (!s.key1 || s.wss) return 0;
+  const f = s.whl / 3.6 / (TAU * RW) * 48;
+  if (f < 0.5) return 7;
+  return mod(t * f, 1) < 0.5 ? 14 : 7;
 }
 function ckpGen(th, s){
   if (F.crank || s.n < 5) return 0;
@@ -2580,6 +2638,7 @@ const SCH = {
   ect:{l:'Sonde T° eau', h:'ect', vd:[1]},
   batt:{l:'Tension batterie', h:'batt', vd:[2], off:8},
   stft:{eng:'e', l:'Correction lambda totale (%)', h:'stft', vd:[5], ac:true, unit:'%'},
+  wss:{l:'Capteur de roue AV droit (actif, courant)', unit:'mA', fast:true, g:wssGen, vd:[5], trig:s => 0},
   none:{l:'— aucune —'},
 };
 const TB = [
@@ -2656,7 +2715,7 @@ function drawScope(){
       let mn = Infinity, mx = -Infinity;
       for (let i = 0; i <= N; i++){
         const t = t0 + win * i / N; const th = t * 6 * s.n;
-        const v = c.g(th, s); pts.push([w * i / N, v]); if (v < mn) mn = v; if (v > mx) mx = v;
+        const v = c.g(th, s, t); pts.push([w * i / N, v]); if (v < mn) mn = v; if (v > mx) mx = v;
       }
       // choisir le calibre pour que le signal tienne à l’écran
       const span = c.ac ? Math.max(Math.abs(mn), Math.abs(mx)) / (DY / 2 - 0.3) : mx / (DY - (idx === 0 ? 1 : 1.5) - 0.3);
@@ -2695,6 +2754,7 @@ function fastMeas(k, s, mn, mx, vdiv, col){
   else if (k.startsWith('ign')){ L.push(['Dwell', fmt(s.dwell, 2) + ' ms'], ['Pic', fmt(mx, 0) + ' V'], ['Avance', fmt(s.adv, 1) + ' °']); }
   else if (k === 'knock'){ L.push(['Crête', fmt(Math.max(-mn, mx), 2) + ' V'], ['Cliquetis', s.knock > 0.05 ? 'OUI' : 'non']); }
   else if (k.startsWith('dinj')){ L.push(['Principale', fmt(s.tinj, 2) + ' ms'], ['Pilote', s.tpilot ? fmt(s.tpilot, 2) + ' ms' : 'non'], ['Début', fmt(s.soi, 1) + ' ° av. PMH'], ['Rampe', fmt(s.rail) + ' bar']); }
+  else if (k === 'wss'){ const f = s.whl / 3.6 / (TAU * RW) * 48; L.push(['Niveaux', s.wss || !s.key1 ? '0 mA (pas de courant)' : '7 / 14 mA'], ['Fréquence', fmt(f, 0) + ' Hz'], ['Vitesse roue', fmt(s.whl) + ' km/h'], ['Rapport cyclique', '50 %']); }
   else if (k === 'pcyl'){ L.push(['P max', fmt(s.cyc.pmax, 1) + ' bar'], ['Angle P max', fmt(s.cyc.thmax, 1) + ' ° ap. PMH'], ['PMI', fmt(s.cyc.imep, 2) + ' bar']); }
   L.push(['Calibre', fmt(vdiv, vdiv < 1 ? 1 : 0) + ' ' + (SCH[k].unit || 'V') + '/div']);
   return { col, k, lines:L };
@@ -2759,7 +2819,7 @@ function decodeMsg(id){
     case 0x110: return [`Régime ${fmt(w(0, 1) / 4)} tr/min`, `Pédale ${fmt(d[2] * 0.4)} %`, `Couple ${d[3] - 64} Nm`, `Papillon ${fmt(d[4] * 0.4, 1)} %`, `État 0b${d[5].toString(2).padStart(5, '0')}`, `Compteur ${d[6]}`, `Somme XOR 0x${hex(d[7])}`];
     case 0x120: return [`T° eau ${d[0] - 40} °C`, `T° air ${d[1] - 40} °C`, `Voyants MIL ${d[2] & 1} · EPC ${(d[2] >> 1) & 1} · T° ${(d[2] >> 2) & 1}`, `Conso ${fmt(w(3, 4) / 10, 1)} L/h`, `GMV ${d[5]}`];
     case 0x130: return [`Rapport ${d[0] === 15 ? 'R' : d[0]}`, `Levier ${['P', 'N', 'R', 'D', '?', 'manuel'][d[1]]}`, `Lock-up ${d[2]}`, `Réduction couple ${d[3]} %`];
-    case 0x1A0: return [`Vitesse ${fmt(w(0, 1) / 100, 2)} km/h`, `Frein ${d[2]}`, `Compteur ${d[3]}`];
+    case 0x1A0: return [`Vitesse ${fmt(w(0, 1) / 100, 2)} km/h`, `Frein ${d[2] & 1} · ABS actif ${(d[2] >> 1) & 1} · ASR ${(d[2] >> 2) & 1} · défaut ${(d[2] >> 3) & 1}`, `Roues AVG ${d[3]} · AVD ${d[4]} · ARG ${d[5]} · ARD ${d[6]} km/h`, `Compteur ${d[7]}`];
     case 0x220: return [`Pression HP ${fmt(d[0] / 10, 1)} bar`, `Demande compresseur ${d[1]}`, `Demande GMV ${d[2]} %`];
     case 0x2A0: return [`Clé ${['OFF', 'contact', 'démarreur'][d[0]]}`, `T° ext ${d[1] - 40} °C`, `Batterie ${fmt(d[2] / 10, 1)} V`, `Clim ${d[3]}`];
     case 0x3E0: return [`Kilométrage ${fmt(((d[0] << 16) | (d[1] << 8) | d[2]) / 10, 1)} km`, `Carburant ${d[3]} %`];
@@ -2876,6 +2936,7 @@ const ECU_DTC = () => {
   NODES.forEach(n => L[n.id] = []);
   if (F.canHcut){ ['BVA','ABS','COMB','BSI','CLIM'].forEach(k => L[k].push('U0100 perte com. moteur')); }
   if (F.absOff){ ['BVA','COMB','BSI'].forEach(k => L[k].push('U0121 perte com. ABS')); }
+  if (F.wss) L.ABS.push('C0040 capteur de roue AVD'); if (F.absPump) L.ABS.push('C0110 moteur de pompe');
   if (S.box === 'auto'){ if (F.bvaTurb) L.BVA.push('P0715 capteur régime turbine'); if (F.bvaLock) L.BVA.push('P0741 lock-up bloqué ouvert'); if (F.bvaAtf) L.BVA.push('P0730 rapport incorrect (patinage)'); }
   return L;
 };
@@ -3464,6 +3525,7 @@ const RP = [
   ['atf', 'T° huile de boîte', '°C', -20, 140, () => S.atf, 1], ['bat', 'Batterie', 'V', 8, 15, () => S.vbat, 2],
   ['tq', 'Couple moteur', 'Nm', -20, 160, () => S.tind, 0], ['cons', 'Consommation', 'L/h', 0, 40, () => S.fuelGs * 3600 / 745, 2],
   ['co', 'CO échappement', '%', 0, 5, () => S.gas.co, 2], ['hc', 'HC échappement', 'ppm', 0, 1500, () => S.gas.hc, 0],
+  ['whf', 'Vitesse roue AV droite', 'km/h', 0, 200, () => F.wss ? 0 : S.whl[1], 0], ['whr', 'Vitesse roue AR droite', 'km/h', 0, 200, () => S.whl[3], 0], ['dec', 'Accélération véhicule', 'm/s²', -12, 6, () => S.acc, 2], ['slip', 'Patinage roues motrices', '%', 0, 100, () => S.spin * 100, 0],
   ['nox', 'NOx échappement', 'ppm', 0, 2500, () => S.gas.nox, 0], ['cat', 'T° catalyseur', '°C', 0, 900, () => S.catT, 0],
 ];
 const RN = 1800; const REC = { t:new Float64Array(RN) }; RP.forEach(r => REC[r[0]] = new Float32Array(RN));
@@ -3680,6 +3742,9 @@ const GAS_COURS = [
 ];
 $('#gasCours').innerHTML = GAS_COURS.map(c => `<article class="fiche"><span class="cat">${c.cat}</span><h4>${c.titre}</h4><ul>${c.pts.map(p => `<li>${p}</li>`).join('')}</ul></article>`).join('');
 PEDA.COURS.push(...GAS_COURS);
+PEDA.COURS.push(
+  {cat:'Freinage', titre:'Adhérence et glissement', pts:['La force de freinage maximale vaut µ × poids : µ ≈ 1 sur route sèche, 0,7 mouillée, 0,3 sur neige, 0,1 sur verglas.','Décélération maximale ≈ µ × 9,81 m/s². Distance d’arrêt ≈ v² ÷ (2 × décélération) : 100 km/h → 39 m sur le sec, plus de 300 m sur le verglas.','Glissement = (vitesse véhicule − vitesse roue) ÷ vitesse véhicule. L’adhérence est maximale vers 10 à 20 % ; roue bloquée (100 %), elle chute et la voiture ne se dirige plus.','Essayez : route mouillée, 100 km/h, freinage à fond avec et sans ABS (panne « fusible ABS »).']},
+  {cat:'Freinage', titre:'ABS, ESP, antipatinage', pts:['Le calculateur ABS compare les 4 vitesses de roue. Si une roue ralentit trop vite, il maintient, relâche puis réapplique la pression (électrovannes + pompe de retour), plusieurs fois par seconde.','ASR (antipatinage) : si les roues motrices patinent, l’ESP freine la roue et demande au calculateur moteur de réduire le couple par le CAN.','ESP : ajoute un capteur d’angle volant et de lacet pour corriger une trajectoire en freinant une seule roue.','Défaut ABS : voyants ABS et ESP allumés, freinage classique conservé (sécurité), défaut C0xxx dans le calculateur ABS.']});
 renderCT();
 
 /* =====================================================================
@@ -3976,6 +4041,9 @@ const BADGES = [
   ['sniper', 'Juste du premier coup', 'Réparer sans pièce inutile ni retour client'],
   ['quiz', 'As du quiz', 'Obtenir au moins 8 / 10 au quiz'],
   ['wire', 'Électricien', 'Mesurer 10 points sur le schéma électrique'],
+  ['ice', 'Patinoire', 'Rouler sur le verglas'],
+  ['brake', 'Pied de plomb', 'Réaliser un freinage 100-0 km/h'],
+  ['exam', 'Examen réussi', 'Terminer un cas en mode examen'],
   ['dry', 'Panne sèche', 'Vider le réservoir… et refaire le plein'],
 ];
 const LEVELS = [[0, 'Apprenti'], [300, 'Mécanicien'], [800, 'Technicien'], [1600, 'Technicien expert'], [2800, 'Diagnosticien'], [4500, 'Ingénieur motoriste']];
@@ -3993,7 +4061,25 @@ function award(id){
 // Chronomètre 0-100 km/h et 400 m départ arrêté
 const PERF = { st:'idle', t0:0, d0:0, t100:null, t400:null, v400:null, best:{} };
 try { PERF.best = JSON.parse(localStorage.getItem('simmoteur-perf') || '{}'); } catch (e) {}
+const BRK = { st:'idle', t0:0, d0:0, v0:0 };
+function brakeTick(){
+  const kmh = S.v * 3.6;
+  if (BRK.st === 'idle' && kmh >= 95 && S.brake > 40){ Object.assign(BRK, { st:'run', t0:S.t, d0:S.odo, v0:kmh, abs:false, lock:false }); }
+  if (BRK.st !== 'run') return;
+  BRK.abs = BRK.abs || S.absAct; BRK.lock = BRK.lock || S.wLock;
+  if (S.brake < 20){ BRK.st = 'idle'; return; }
+  if (kmh < 0.5){
+    const d = (S.odo - BRK.d0) * 1000 * Math.pow(100 / BRK.v0, 2), el = S.t - BRK.t0;
+    const k = ENG.id + ':brk:' + S.road; const nb = !PERF.best[k] || d < PERF.best[k]; if (nb) PERF.best[k] = d;
+    BRK.st = 'idle'; BRK.last = { d, el, road:S.road, abs:BRK.abs, lock:BRK.lock, t:S.t };
+    toast(`Freinage 100-0 km/h : ${fmt(d, 1)} m`, `${fmt(el, 2)} s · ${ROAD_TXT[S.road].toLowerCase()}${BRK.lock ? ' · roues bloquées' : BRK.abs ? ' · ABS actif' : ''}${nb ? ' · record' : ''}`, '⏹');
+    log(`Freinage 100-0 km/h sur route ${ROAD_TXT[S.road].toLowerCase()} : ${fmt(d, 1)} m en ${fmt(el, 2)} s${BRK.lock ? ' (roues bloquées, sans ABS)' : BRK.abs ? ' (ABS en régulation)' : ''}`, 'i');
+    award('brake');
+    try { localStorage.setItem('simmoteur-perf', JSON.stringify(PERF.best)); } catch (e) {}
+  }
+}
 function perfTick(){
+  brakeTick();
   const fwd = inGearNow() && S.gear > 0;
   if (PERF.st === 'idle' || PERF.st === 'done'){ if (S.running && fwd && Math.abs(S.v) < 0.2 && S.brake < 50 && S.pedal < 5) PERF.st = 'armed'; }
   if (PERF.st === 'armed'){ if (!fwd || !S.running){ PERF.st = 'idle'; } else if (S.v > 0.2 && S.pedal > 40){ Object.assign(PERF, { st:'run', t0:S.t, d0:S.odo, t100:null, t400:null, v400:null }); } }
@@ -4024,7 +4110,7 @@ function badgeTick(dt){
    SCÈNE DE ROUTE (vue latérale animée)
    ===================================================================== */
 let roadX = 0, roadLast = performance.now();
-const PARTS = [];
+const PARTS = [], SKID = [], FLAKES = [];
 function hillY(x, seed, amp, per){ return Math.sin(x / per + seed) * amp + Math.sin(x / (per * 0.37) + seed * 2.1) * amp * 0.35; }
 function drawRoad(now){
   const dtR = Math.min(0.05, (now - roadLast) / 1000); roadLast = now;
@@ -4054,7 +4140,13 @@ function drawRoad(now){
     ctx.fillStyle = '#20303c'; ctx.fillRect(x, -70 * k, 3, 70 * k);
     if (i % 3 === 0){ ctx.fillStyle = '#18302a'; ctx.beginPath(); ctx.arc(x + 40 * k, -60 * k, 22 * k, 0, TAU); ctx.fill(); ctx.fillStyle = '#2a2016'; ctx.fillRect(x + 38 * k, -42 * k, 4 * k, 42 * k); }
   }
-  ctx.fillStyle = '#1e262d'; ctx.fillRect(-w * 2, 0, w * 4, h);
+  ctx.fillStyle = S.road === 'mouille' ? '#1a2229' : S.road === 'neige' ? '#c9d2da' : S.road === 'verglas' ? '#27333d' : '#1e262d'; ctx.fillRect(-w * 2, 0, w * 4, h);
+  if (S.road === 'mouille'){ ctx.fillStyle = 'rgba(160,190,215,.10)'; for (let x = -w * 2 - mod(roadX, 90 * k); x < w * 2; x += 90 * k) ctx.fillRect(x, 6 * k, 50 * k, 2); }
+  if (S.road === 'verglas'){ ctx.fillStyle = 'rgba(190,225,255,.16)'; for (let x = -w * 2 - mod(roadX, 140 * k); x < w * 2; x += 140 * k) ctx.fillRect(x, 3, 90 * k, 10 * k); }
+  // traces de pneus bloqués
+  if (S.wLock && Math.abs(S.v) > 0.5) SKID.push({ x:0, life:1 });
+  for (let i = SKID.length - 1; i >= 0; i--){ const q = SKID[i]; q.x -= S.v * dtR * S.simSpeed * pxm; q.life -= dtR * 0.25; if (q.life <= 0 || q.x < -w * 2){ SKID.splice(i, 1); continue; } ctx.fillStyle = `rgba(8,8,8,${0.45 * q.life})`; ctx.fillRect(q.x + 190 * k * 0.3 - 4, 2, 8, 3); ctx.fillRect(q.x - 190 * k * 0.3 - 4, 2, 8, 3); }
+  if (SKID.length > 600) SKID.splice(0, SKID.length - 600);
   ctx.fillStyle = '#2b353e'; ctx.fillRect(-w * 2, 0, w * 4, 4);
   ctx.fillStyle = '#c9b76a'; const dash = 60 * k;
   for (let x = -w * 2 - mod(roadX, dash * 2); x < w * 2; x += dash * 2) ctx.fillRect(x, 14 * k, dash, 3);
@@ -4085,6 +4177,10 @@ function drawRoad(now){
   if (rev){ ctx.fillStyle = '#fff'; ctx.shadowColor = '#fff'; ctx.shadowBlur = 14; ctx.fillRect(bx + 1, by + H * 0.4, 6, 6); ctx.shadowBlur = 0; }
   if (S.key >= 1){ const hl = ctx.createLinearGradient(bx + L, 0, bx + L + 160 * k, 0); hl.addColorStop(0, 'rgba(255,236,170,.35)'); hl.addColorStop(1, 'rgba(255,236,170,0)'); ctx.fillStyle = hl; ctx.beginPath(); ctx.moveTo(bx + L - 2, by + H * 0.25); ctx.lineTo(bx + L + 170 * k, by + H * 0.9); ctx.lineTo(bx + L + 170 * k, by - H * 0.3); ctx.fill(); ctx.fillStyle = '#ffe9a8'; ctx.fillRect(bx + L - 6, by + H * 0.18, 5, 7); }
   wheel(bx + L * 0.2); wheel(bx + L * 0.8);
+  // fumée de pneus : roues bloquées ou patinage des roues avant
+  if ((S.wLock && Math.abs(S.v) > 2 && S.road === 'sec') || (S.spin > 0.2 && S.road !== 'verglas')) for (let n = 0; n < 2; n++) PARTS.push({ x:bx + L * (S.wLock ? 0.2 + 0.6 * (n % 2) : 0.8), y:-4, vx:-20 - Math.random() * 30, vy:-10 - Math.random() * 10, life:0.8, sz:5 + Math.random() * 4, soot:0, vapor:0.9 });
+  // projections de neige ou d'eau
+  if ((S.road === 'mouille' || S.road === 'neige') && Math.abs(S.v) > 3 && Math.random() < 0.8) PARTS.push({ x:bx + L * (Math.random() < 0.5 ? 0.2 : 0.8) - r, y:-3, vx:-40 - Math.random() * 60, vy:-15 - Math.random() * 20, life:0.5, sz:2 + Math.random() * 2, soot:0, vapor:S.road === 'neige' ? 0.9 : 0.4 });
   // échappement : particules selon les gaz réels
   const px = bx - 2, py = by + H * 0.85;
   if (S.running){
@@ -4128,10 +4224,28 @@ function drawRoad(now){
     ctx.fillText(PERF.st === 'armed' ? `record ${PERF.best[ENG.id + ':100'] ? fmt(PERF.best[ENG.id + ':100'], 2) + ' s' : '—'}` : `${el != null ? fmt(el, 1) + ' s' : ''}${PERF.t100 != null ? ` · 100 en ${fmt(PERF.t100, 2)} s` : ''}${PERF.t400 != null ? ` · 400 m ${fmt(PERF.t400, 2)} s` : ''}`, w / 2, 48);
     ctx.restore();
   }
+  // météo : pluie ou neige
+  if (S.road === 'mouille' || S.road === 'neige'){
+    while (FLAKES.length < (S.road === 'neige' ? 90 : 120)) FLAKES.push({ x:Math.random() * w, y:Math.random() * h });
+    ctx.strokeStyle = 'rgba(170,200,225,.35)'; ctx.fillStyle = 'rgba(240,245,250,.8)'; ctx.lineWidth = 1;
+    FLAKES.forEach(q => { if (S.road === 'neige'){ q.y += 40 * dtR; q.x -= (S.v * 4 + 10) * dtR; ctx.beginPath(); ctx.arc(q.x, q.y, 1.6, 0, TAU); ctx.fill(); } else { q.y += 500 * dtR; q.x -= (S.v * 8 + 40) * dtR; ctx.beginPath(); ctx.moveTo(q.x, q.y); ctx.lineTo(q.x + 2 + S.v * 0.2, q.y - 12); ctx.stroke(); } if (q.y > h){ q.y = -10; q.x = Math.random() * (w + 200); } if (q.x < -20) q.x += w + 40; });
+  } else FLAKES.length = 0;
+  // régulations de freinage et d'adhérence
+  const tags = []; if (S.absAct) tags.push(['ABS', COL.warn]); if (S.asrRed > 0.05 && !S.espOff) tags.push(['ESP · ASR', COL.warn]); if (S.wLock) tags.push(['ROUES BLOQUÉES', COL.crit]); if (S.spin > 0.2 && (S.espOff || S.asrRed < 0.05)) tags.push(['PATINAGE', COL.crit]); if (S.road !== 'sec') tags.push([ROAD_TXT[S.road].toUpperCase() + ' · µ ' + fmt(ROAD_MU[S.road], 2), COL.muted]);
+  ctx.font = '700 13px "Barlow Condensed", sans-serif'; ctx.textAlign = 'left';
+  let tx = 12; tags.forEach(([t, c]) => { const tw = ctx.measureText(t).width + 16; ctx.fillStyle = 'rgba(7,11,14,.65)'; ctx.fillRect(tx, 82, tw, 22); ctx.strokeStyle = c; ctx.strokeRect(tx + .5, 82.5, tw - 1, 21); ctx.fillStyle = c; ctx.fillText(t, tx + 8, 98); tx += tw + 6; });
+  if (BRK.st === 'run' || (BRK.last && S.t - BRK.last.t < 8)){
+    ctx.textAlign = 'center'; ctx.fillStyle = 'rgba(7,11,14,.6)'; ctx.fillRect(w / 2 - 130, h - 64, 260, 44);
+    ctx.fillStyle = COL.ch2; ctx.font = '600 12px "Barlow Condensed", sans-serif'; ctx.fillText('FREINAGE 100-0 KM/H', w / 2, h - 48);
+    ctx.fillStyle = COL.text; ctx.font = '500 15px "IBM Plex Mono", monospace';
+    ctx.fillText(BRK.st === 'run' ? `${fmt((S.odo - BRK.d0) * 1000, 1)} m · ${fmt(S.t - BRK.t0, 1)} s` : `${fmt(BRK.last.d, 1)} m en ${fmt(BRK.last.el, 2)} s`, w / 2, h - 28);
+  }
   if (S.fuel < 6 && S.key >= 1){ ctx.textAlign = 'center'; ctx.fillStyle = COL.warn; ctx.font = '600 13px "Barlow Condensed", sans-serif'; ctx.fillText(S.fuel <= 0 ? 'PANNE SÈCHE : FAITES LE PLEIN' : 'RÉSERVE CARBURANT', w / 2, h - 14); }
 }
 // Commandes de route
 bindRange('slope', v => { S.slope = v; $('#slopeV').textContent = (v > 0 ? '+' : '') + v + ' %'; });
+$('#roadSeg').onclick = e => { const b = e.target.closest('button'); if (!b) return; S.road = b.dataset.r; document.querySelectorAll('#roadSeg button').forEach(x => x.classList.toggle('on', x === b)); $('#roadV').textContent = 'µ ' + fmt(ROAD_MU[S.road], 2); log(`Route : ${ROAD_TXT[S.road]} (adhérence µ ≈ ${fmt(ROAD_MU[S.road], 2)})`, 'i'); if (S.road === 'verglas') award('ice'); };
+$('#espOff').onchange = e => { S.espOff = e.target.checked; log(S.espOff ? 'ESP OFF : l’antipatinage ne limite plus le couple' : 'ESP réactivé', S.espOff ? 'w' : 'i'); };
 bindRange('cargo', v => { S.cargo = v; $('#cargoV').textContent = v + ' kg'; });
 $('#refuel').onclick = () => { if (S.running){ flashHint('Coupez le moteur pour faire le plein'); log('Plein refusé : coupez le moteur', 'w'); return; } S.fuel = 50; S.dryLogged = false; log('Plein fait : 50 L', 'i'); if (PROG.dryPending){ PROG.dryPending = false; award('dry'); } };
 $('#tripReset').onclick = () => { S.trip = 0; S.tripL = 0; log('Trajet remis à zéro'); };
@@ -4162,6 +4276,10 @@ function updateFuelUI(){ $('#fuelV').textContent = fmt(S.fuel, 1) + ' L'; const 
    QUIZ
    ===================================================================== */
 const QUIZ = [
+  ['Freinage', 'Sur quelle route la distance de freinage de 100 à 0 km/h est-elle la plus longue ?', ['Verglas', 'Neige', 'Route mouillée', 'Route sèche'], 0, 'Le verglas a l’adhérence la plus faible (µ ≈ 0,1) : décélération d’environ 1 m/s², plus de 300 m pour s’arrêter.'],
+  ['Freinage', 'Quel est le principal intérêt de l’ABS ?', ['Garder la voiture dirigeable en freinage d’urgence', 'Freiner sans pédale', 'Supprimer l’usure des plaquettes', 'Augmenter la puissance du moteur'], 0, 'Roue bloquée = plus de guidage. L’ABS maintient un glissement d’environ 12 %, ce qui donne aussi en général une distance plus courte.'],
+  ['Freinage', 'Un capteur de roue actif produit…', ['un signal carré en courant (7 / 14 mA)', 'une tension alternative sinusoïdale', 'une tension continue fixe', 'un signal PWM de 12 V'], 0, 'Le capteur actif a une électronique intégrée : il module son courant. Il mesure dès l’arrêt, contrairement au capteur inductif.'],
+  ['Freinage', 'Au démarrage sur la neige, les roues avant patinent. Que fait l’antipatinage (ASR) ?', ['Il demande au calculateur moteur de réduire le couple', 'Il coupe le contact', 'Il passe la boîte au point mort', 'Il bloque les roues arrière'], 0, 'Via le CAN, l’ESP demande une réduction de couple (papillon, avance, injection) et freine la roue qui patine.'],
   ['Capteurs', 'Une sonde de température moteur (CTN) débranchée donne au calculateur une tension de…', ['5 V', '0 V', '2,5 V', '12 V'], 0, 'Le pont diviseur n’est plus tiré vers la masse : l’entrée lit la tension de référence, 5 V, soit −40 °C (code P0118).'],
   ['Capteurs', 'Quand le liquide de refroidissement chauffe, la résistance d’une CTN…', ['diminue', 'augmente', 'reste constante', 's’annule à 100 °C'], 0, 'CTN = Coefficient de Température Négatif : la résistance baisse quand la température monte (≈ 2,5 kΩ à 20 °C, ≈ 260 Ω à 90 °C).'],
   ['Capteurs', 'À quoi servent les deux dents manquantes de la cible du capteur régime 60-2 ?', ['Donner un repère de position du vilebrequin', 'Mesurer la température du volant', 'Détecter le cliquetis', 'Compter les rapports de boîte'], 0, 'Le trou crée une signature que le calculateur repère : il en déduit la position angulaire et le PMH du cylindre 1.'],
@@ -4328,6 +4446,7 @@ function updateFast(){
 let slowN = 0;
 function updateSlow(){
   slowN++;
+  const mt = $('#misTimer'); if (mt && MIS && !MIS.done) mt.textContent = fmtClock((Date.now() - MIS.real0) / 1000);
   setPills(); updateDtcBadge(); badgeTick(0.12); misTick(); updateFuelUI(); updateOnboard();
   if (E.on && E.rpm > 30 && slowN % 2 === 0){ trail.push([E.rpm, E.map, E.pedal]); if (trail.length > 60) trail.shift(); }
   if (TAB === 'dash') updateTiles();
@@ -4387,11 +4506,14 @@ const MISSIONS = {
   vgtOpen:{turbo:true, d:'moyen', client:'Plus aucune puissance, le turbo ne pousse plus.', h:['Pression de suralimentation mesurée et consigne en accélération.','Commande du turbo et position réelle.'], cor:'La régulation du turbo est bloquée en position ouverte : la turbine ne tourne pas assez vite, pas de pression. Code P0299. Contrôler l’actionneur, sa commande et la mécanique du turbo.'},
   vgtClosed:{turbo:true, d:'moyen', client:'En pleine accélération, un à-coup puis la voiture se met en sécurité.', h:['Pression de suralimentation en accélération par rapport à la consigne.','Défauts mémorisés à la valise.'], cor:'Régulation du turbo bloquée fermée : la pression dépasse la consigne (surpression). Le calculateur réduit la charge pour protéger le moteur et le turbo. Code P0234.'},
   boostLeak:{turbo:true, d:'moyen', client:'Ça siffle en accélération et ça manque de puissance.', h:['Pression de suralimentation obtenue par rapport à la consigne.','Contrôlez les durites entre turbo, échangeur et collecteur.'], cor:'Durite de suralimentation fendue : l’air comprimé s’échappe, la pression n’atteint pas la consigne malgré le turbo au maximum. Code P0299. Remplacer la durite, vérifier les colliers.'},
+  wss:{d:'facile', client:'Les voyants ABS et ESP se sont allumés d’un coup. La voiture freine quand même.', h:['Valise : lisez les défauts du calculateur ABS.','Oscilloscope ou enregistreur : comparez les vitesses des 4 roues.','Trame CAN 0x1A0 : quelle roue ne donne plus rien ?'], cor:'Le capteur de roue avant droit ne fournit plus de signal : le calculateur ABS ne peut plus calculer le glissement de cette roue et désactive l’ABS et l’ESP par sécurité (freinage classique conservé). Contrôler l’alimentation, le faisceau (souvent abîmé près du pivot) et la cible. Code C0040.'},
+  absPump:{d:'moyen', client:'Voyant ABS allumé. Sur la neige, en freinant fort, les roues se sont bloquées et la voiture a glissé tout droit.', h:['Valise : calculateur ABS.','Choisissez une route enneigée et freinez fort : les roues se bloquent-elles ?','Les capteurs de roue sont-ils cohérents ?'], cor:'Les capteurs sont bons mais le moteur de pompe du groupe hydraulique ne tourne plus : l’ABS ne peut plus moduler la pression, il est désactivé et les roues se bloquent sur sol glissant. Remplacer le groupe hydraulique, purger et coder. Code C0110.'},
   absOff:{d:'facile', client:'Le compteur de vitesse reste à zéro et un voyant de réseau est allumé.', h:['Onglet CAN : quelle trame est absente ?','Valise : quel calculateur est muet ?'], cor:'Le calculateur ABS n’est plus alimenté : la trame de vitesse 0x1A0 disparaît. Tous les calculateurs qui l’utilisent enregistrent U0121. Contrôler le fusible et l’alimentation de l’ABS.'},
 };
 const DIFF = { facile:1, moyen:2, difficile:3, prof:3 };
 // Pièces et interventions : prix pièce (€ TTC) et temps barème (h)
 const LABOUR = 65;
+const fmtClock = sec => `${Math.floor(sec / 60)}:${String(Math.floor(sec % 60)).padStart(2, '0')}`;
 const PIECES = {
   crank:['Capteur régime vilebrequin', 48, 0.6], cam:['Capteur arbre à cames', 42, 0.5], ectOpen:['Réparation connecteur / fil sonde T° eau', 15, 0.8], ectShort:['Réparation isolement faisceau sonde T° eau', 15, 1.0],
   iatOpen:['Sonde température d’air', 22, 0.3], map:['Rebranchement capteur de pression', 0, 0.2], tps:['Boîtier papillon + apprentissage', 210, 0.9], app2:['Pédale d’accélérateur', 95, 0.5],
@@ -4402,7 +4524,7 @@ const PIECES = {
   badFuel:['Vidange du réservoir + plein', 90, 1.0], railLow:['Pompe haute pression', 650, 2.5], injLeak:['Injecteur 3 + codage', 320, 1.2], thermo:['Thermostat + liquide', 45, 1.3],
   cat:['Catalyseur', 620, 1.2], dpfClog:['Filtre à particules', 950, 1.5], bvaTurb:['Capteur régime turbine BVA', 70, 1.8], bvaLock:['Électrovanne de lock-up BVA', 130, 3.0],
   bvaAtf:['Recherche de fuite + appoint huile BVA', 60, 1.0], battLow:['Batterie', 130, 0.3], alt:['Alternateur', 290, 1.4], canHcut:['Réparation faisceau CAN (calculateur moteur)', 20, 1.5],
-  canTerm:['Connecteur du BSI (terminaison)', 25, 0.8], canShort:['Réparation faisceau CAN (court-circuit)', 20, 2.0], absOff:['Fusible ABS', 2, 0.2],
+  canTerm:['Connecteur du BSI (terminaison)', 25, 0.8], canShort:['Réparation faisceau CAN (court-circuit)', 20, 2.0], absOff:['Fusible ABS', 2, 0.2], wss:['Capteur de roue AV droit', 55, 0.6], absPump:['Groupe hydraulique ABS + purge', 450, 2.0],
 };
 const partOf = id => { const p = PIECES[id] || [faultLabel(FAULTS.find(f => f.id === id)), 50, 1]; const part = id === 'inj2' && isD() ? 320 : p[1]; return { id, name:p[0], part, h:p[2], cost:part + p[2] * LABOUR }; };
 const partList = () => FAULTS.filter(faultFits).map(f => partOf(f.id)).sort((a, b) => a.name.localeCompare(b.name, 'fr'));
@@ -4426,7 +4548,7 @@ function startMission(id, custom){
   let meta, faults, engId, engSpec;
   if (custom){
     faults = custom.f.filter(x => FAULTS.some(f => f.id === x)); engId = custom.e; engSpec = custom.s || null;
-    meta = { client:custom.c || 'Le véhicule présente un problème : à vous de trouver lequel.', cold:!!custom.k, d:'prof', h:[], cor:'Cas composé par votre professeur.', inter:!!custom.i };
+    meta = { client:custom.c || 'Le véhicule présente un problème : à vous de trouver lequel.', cold:!!custom.k, d:'prof', h:[], cor:'Cas composé par votre professeur.', inter:!!custom.i, exam:!!custom.x };
   } else {
     const keys = Object.keys(MISSIONS);
     if (!id) id = keys[Math.floor(Math.random() * keys.length)];
@@ -4488,6 +4610,7 @@ function renderMission(){
           <div class="row" style="margin-top:8px"><div class="lab"><span>Pannes à introduire (une ou plusieurs)</span></div><div class="flts" id="pfFaults" style="max-height:220px;overflow:auto;padding-right:6px"></div></div>
           <div class="row" style="margin-top:8px"><div class="lab"><span>Ce que dit le client</span></div><textarea id="pfClient" rows="2" style="background:var(--panel2);border:1px solid var(--line2);border-radius:6px;padding:7px 10px;color:var(--text);resize:vertical">Depuis ce matin, la voiture ne marche plus comme avant.</textarea></div>
           <label class="toggle" style="margin-top:8px"><input type="checkbox" id="pfCold"> Véhicule resté dehors la nuit (−5 °C)</label>
+          <label class="toggle" style="margin-top:4px"><input type="checkbox" id="pfExam"> Mode examen : pas d’indice, pas de corrigé, chronomètre affiché</label>
           <label class="toggle" style="margin-top:4px"><input type="checkbox" id="pfInter"> Pannes intermittentes (faux contact : apparaissent et disparaissent)</label>
           <div class="quick" style="margin-top:10px"><button class="btn primary" type="button" id="pfMake">Générer le code du cas</button><button class="btn" type="button" id="pfTry">Tester le cas</button></div>
           <div id="pfOut" style="margin-top:8px"></div>
@@ -4497,7 +4620,7 @@ function renderMission(){
     </div>`;
     renderProf();
     $('#pfEng').onchange = renderProf;
-    const pfCase = () => { const f = [...$('#pfFaults').querySelectorAll('input:checked')].map(x => x.value); if (!f.length){ $('#pfOut').innerHTML = '<p class="note">Choisissez au moins une panne.</p>'; return null; } const e = $('#pfEng').value; return { e, s:e === 'custom' ? CUSTOM : undefined, f, c:$('#pfClient').value.trim(), k:$('#pfCold').checked ? 1 : 0, i:$('#pfInter').checked ? 1 : 0 }; };
+    const pfCase = () => { const f = [...$('#pfFaults').querySelectorAll('input:checked')].map(x => x.value); if (!f.length){ $('#pfOut').innerHTML = '<p class="note">Choisissez au moins une panne.</p>'; return null; } const e = $('#pfEng').value; return { e, s:e === 'custom' ? CUSTOM : undefined, f, c:$('#pfClient').value.trim(), k:$('#pfCold').checked ? 1 : 0, i:$('#pfInter').checked ? 1 : 0, x:$('#pfExam').checked ? 1 : 0 }; };
     $('#pfMake').onclick = () => { const c = pfCase(); if (!c) return; const code = encCase(c); $('#pfOut').innerHTML = `<div class="calc"><div class="ln"><span>Code à transmettre</span><b style="word-break:break-all;font-size:12px">${esc(code)}</b></div></div><button class="btn" type="button" id="pfCopy" style="margin-top:6px">Copier le code</button>`; $('#pfCopy').onclick = () => { try { navigator.clipboard.writeText(code).then(() => { $('#pfCopy').textContent = 'Code copié'; }, () => { $('#pfCopy').textContent = 'Copie refusée : sélectionnez le code'; }); } catch (e) {} }; };
     $('#pfTry').onclick = () => { const c = pfCase(); if (c) startMission(null, c); };
     $('#caseLoad').onclick = () => { try { const c = decCase($('#caseCode').value); if (!c.f || !c.f.length) throw 0; if (c.e === 'custom' && c.s) CUSTOM = c.s; startMission(null, c); } catch (e) { $('#caseMsg').textContent = 'Code illisible : vérifiez qu’il est complet.'; } };
@@ -4510,6 +4633,7 @@ function renderMission(){
   el.innerHTML = `<div class="grid mis">
     <div class="grid">
       <div class="box">
+        ${m.exam ? `<div class="exambar"><b>MODE EXAMEN</b><span>Sans indice · sans corrigé</span><span id="misTimer" class="mono">${fmtClock((Date.now() - MIS.real0) / 1000)}</span></div>` : ''}
         <div class="hd"><h3>Le client explique</h3><span class="note">${m.cold ? 'Véhicule resté dehors la nuit' : 'Moteur chaud'} · ${m.d === 'prof' ? 'cas du professeur' : 'difficulté ' + m.d}${multi ? ` · ${MIS.faults.length} pannes` : ''}${m.inter ? ' · panne intermittente' : ''}</span></div>
         <q class="client">${esc(m.client)}</q>
         ${MIS.hints ? `<ol class="hints">${m.h.slice(0, MIS.hints).map(x => `<li>${x}</li>`).join('')}</ol>` : ''}
@@ -4526,7 +4650,7 @@ function renderMission(){
     </div>
     <div class="box">
       <div class="hd"><h3>Atelier : intervention</h3><span class="note">Main d’œuvre ${LABOUR} €/h</span></div>
-      ${MIS.done ? `<div class="verdict ok"><div class="score">${MIS.score} pts</div><p style="margin-top:4px">Facture client : <b>${fmt(billTotal())} €</b>${MIS.wasted ? ` dont <b style="color:var(--crit)">${fmt(MIS.wasted)} €</b> de pièces inutiles` : ' · aucune pièce inutile'}${MIS.comebacks ? ` · ${MIS.comebacks} retour(s) client` : ''}</p>${fls.map(fl => `<p style="margin-top:6px"><b>${faultLabel(fl)}</b> <code>${fl.dtc}</code>${!multi && MISSIONS[fl.id] ? ' — ' + MISSIONS[fl.id].cor : ''}</p>`).join('')}${multi || m.d === 'prof' ? '<p class="note" style="margin-top:6px">Corrigé détaillé avec votre professeur.</p>' : ''}</div>` : `
+      ${MIS.done ? `<div class="verdict ok"><div class="score">${MIS.score} pts</div><p style="margin-top:4px">Facture client : <b>${fmt(billTotal())} €</b>${MIS.wasted ? ` dont <b style="color:var(--crit)">${fmt(MIS.wasted)} €</b> de pièces inutiles` : ' · aucune pièce inutile'}${MIS.comebacks ? ` · ${MIS.comebacks} retour(s) client` : ''}</p>${fls.map(fl => `<p style="margin-top:6px"><b>${faultLabel(fl)}</b> <code>${fl.dtc}</code>${!multi && MISSIONS[fl.id] ? ' — ' + MISSIONS[fl.id].cor : ''}</p>`).join('')}${m.exam ? `<p class="note" style="margin-top:6px">Temps : <b>${fmtClock(MIS.secs || 0)}</b> · à montrer à votre professeur avec la fiche.</p>` : ''}${multi || m.d === 'prof' ? '<p class="note" style="margin-top:6px">Corrigé détaillé avec votre professeur.</p>' : ''}</div>` : `
         <p class="explain">Cochez les pièces à remplacer ou les réparations à faire. Chaque intervention est facturée (pièce + temps barème). Ensuite, vérifiez que le défaut a disparu (essai, valise) avant de rendre le véhicule.${multi ? ` Ce véhicule a <b>${MIS.faults.length} pannes</b>.` : ''}</p>
         <input type="search" id="partQ" placeholder="Filtrer les pièces…" style="width:100%;margin-bottom:6px;background:var(--panel2);border:1px solid var(--line2);border-radius:6px;padding:6px 9px;color:var(--text)">
         <div class="flts" id="misAns" style="max-height:300px;overflow:auto;padding-right:6px">${partList().map(p => `<label class="flt" data-pn="${esc(p.name.toLowerCase())}"><input type="checkbox" value="${p.id}"${MIS.replaced.includes(p.id) ? ' disabled' : ''}><span>${p.name}${MIS.replaced.includes(p.id) ? ' <em class="muted">(déjà fait)</em>' : ''}</span><code>${fmt(p.cost)} €</code></label>`).join('')}</div>
@@ -4568,7 +4692,7 @@ function renderMission(){
     const ficheBonus = Object.values(MIS.fiche).filter(v => v.trim().length > 8).length * 5;
     const clean = Object.keys(DTC).length === 0 ? 10 : 0;
     MIS.score = Math.max(20, Math.round(100 + (multi ? 40 : 0) + ficheBonus + clean - MIS.hints * 12 - MIS.comebacks * 25 - MIS.wasted / 20 - Math.floor(secs / 60) * 3));
-    MIS.done = true; MIS.wrong = null;
+    MIS.done = true; MIS.wrong = null; MIS.secs = secs; if (m.exam) award('exam');
     const lab = fls.map(faultLabel).join(' + ');
     log(`Véhicule rendu réparé : ${lab} (${MIS.score} pts, facture ${fmt(billTotal())} €)`, 'i');
     const hist = misHistory(); hist.unshift({ label:lab, score:MIS.score, date:new Date().toLocaleDateString('fr-FR') });
